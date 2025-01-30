@@ -1,39 +1,16 @@
 "use client";
 
+import { google } from "googleapis";
 import { useEffect, useState } from "react";
+import { getPiutang } from "../api/apiSpreadsheet";
 
-export default function Piutang() {
-  const [data, setData] = useState([]);
-  const [error, setError] = useState(null);
-
+export default async function Piutang() {
   useEffect(() => {
-    async function fetchSpreadsheet() {
-      try {
-        const response = await fetch("/api/spreadsheet");
-        console.log(response);
-        if (!response.ok) throw new Error("Failed to fetch data");
-
-        const result = await response.json();
-        setData(result.rows);
-      } catch (error: any) {
-        setError(error.message);
-      }
-    }
-
-    fetchSpreadsheet();
+    fetch("/api/piutang")
+      .then((res) => console.log(res))
+      .catch((err) => console.error(err));
   }, []);
-
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      {error ? (
-        <p>Error: {error}</p>
-      ) : (
-        <ul>
-          {data.map((row, index) => (
-            <li key={index}>{JSON.stringify(row)}</li>
-          ))}
-        </ul>
-      )}
-    </main>
+    <main className="flex min-h-screen flex-col items-center justify-between p-24"></main>
   );
 }
