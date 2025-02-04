@@ -1,24 +1,56 @@
-import { google } from "googleapis";
+// app/api/piutang/route.ts
+import readPiutang from "@/lib/readPiutang";
 import { NextResponse } from "next/server";
 
-export async function getPiutang() {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: process.env.NEXT_PUBLIC_CLIENT_EMAIL,
-      private_key: process.env.NEXT_PUBLIC_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-    },
-    scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-  });
-
-  const sheets = google.sheets({ version: "v4", auth });
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: "1pxAHMxfqHWePa682WKzCOfEf9HRB0NKO6gTc8UlZVOE",
-    range: "A1:E",
-  });
-  console.log(res);
-
-  return NextResponse.json(res.data);
+export async function GET() {
+  try {
+    // Logika untuk mengambil data piutang
+    const data = await readPiutang();
+    return NextResponse.json(data);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Gagal mengambil data piutang" },
+      { status: 500 }
+    );
+  }
 }
+
+// import { google } from "googleapis";
+// import keys from "../../../key.json";
+
+// export default function getPiutang({ req, res }: any) {
+//   try {
+//     const client = new google.auth.JWT(
+//       keys.client_email,
+//       undefined,
+//       keys.private_key,
+//       ["https://www.googleapis.com/auth/spreadsheets"]
+//     );
+
+//     client.authorize(async function (err, tokens) {
+//       if (err) {
+//         console.log("Error authenticating:", err);
+//         return res.status(400).send(JSON.stringify({ error: true }));
+//       }
+
+//       const gsapi = google.sheets({ version: "v4", auth: client });
+//       const opt = {
+//         spreadsheetId: "1pxAHMxfqHWePa682WKzCOfEf9HRB0NKO6gTc8UlZVOE",
+//         range: "A1:E",
+//       };
+
+//       const data = await gsapi.spreadsheets.values.get(opt);
+//       console.log(data);
+//       return res
+//         .status(200)
+//         .send(JSON.stringify({ error: false, data: data.data.values }));
+//     });
+//   } catch (err: any) {
+//     return res
+//       .status(400)
+//       .send(JSON.stringify({ error: true, message: err.message }));
+//   }
+// }
 
 // import { google } from "googleapis";
 

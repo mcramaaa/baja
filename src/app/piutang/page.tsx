@@ -1,16 +1,18 @@
 "use client";
+import React, { useEffect } from "react";
 
-import { google } from "googleapis";
-import { useEffect, useState } from "react";
-import { getPiutang } from "../api/apiSpreadsheet";
+export default function Piutang() {
+  async function getPiutang() {
+    await fetch("/api/piutang")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("data", data);
+      });
+  }
 
-export default async function Piutang() {
   useEffect(() => {
-    fetch("/api/piutang")
-      .then((res) => console.log(res))
-      .catch((err) => console.error(err));
+    getPiutang();
   }, []);
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24"></main>
-  );
+
+  return <div>Piutang</div>;
 }
