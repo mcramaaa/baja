@@ -8,6 +8,6 @@ export function convertToNumber(value: string) {
   return format;
 }
 
-function convertToRupiah(value: number) {
+export function convertToRupiah(value: number) {
   return `Rp. ${value.toLocaleString("id-ID")},-`;
 }
