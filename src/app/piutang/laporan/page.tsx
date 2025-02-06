@@ -56,7 +56,7 @@ export default function Piutang() {
     let copyText = "";
 
     groupedInvoices.forEach((invoices, date) => {
-      copyText += `**Tgl ${converDate(date)}**\n`;
+      copyText += `*Tgl ${converDate(date)}*\n`;
       (invoices as IPiutang[]).forEach((invoice) => {
         copyText += `Invoice : ${invoice.name}\n`;
         copyText += `${
