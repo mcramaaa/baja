@@ -1,4 +1,8 @@
-import { convertToNumber } from "@/helper/convert";
+import {
+  converDate,
+  convertCustomDate,
+  convertToNumber,
+} from "@/helper/convert";
 import { google } from "googleapis";
 
 const auth = new google.auth.GoogleAuth({
@@ -10,8 +14,8 @@ const sheets = google.sheets({ version: "v4", auth });
 
 async function readPiutang() {
   const spreadsheetId = "1pxAHMxfqHWePa682WKzCOfEf9HRB0NKO6gTc8UlZVOE";
-  const rangeAtoZ = "PIUTANG!A2:AA";
-  const rangeAD = "PIUTANG!AD2:AD";
+  const rangeAtoZ = "PIUTANG!A3:AA";
+  const rangeAD = "PIUTANG!AD3:AD";
 
   try {
     const resAtoZ = await sheets.spreadsheets.values.get({
@@ -31,18 +35,21 @@ async function readPiutang() {
         id: i + 1,
         po: data[2],
         sub: data[3],
-        poDate: data[4],
+        poDate: convertCustomDate(data[4]),
         name: data[5],
         sj: data[7],
-        sjDate: data[8],
+        sjDate: convertCustomDate(data[8]),
         inv: data[9],
-        invDate: data[11],
+        invDate: convertCustomDate(data[11]),
         rangeDay: +data[12],
-        dueDate: data[13],
+        dueDate: convertCustomDate(data[13]),
         overDue: data[18],
         bill: convertToNumber(data[21]),
         payment: convertToNumber(data[23]),
-        billRemaning: convertToNumber(data[21]) - convertToNumber(data[23]),
+        billRemaning:
+          convertToNumber(data[21]) - convertToNumber(data[23]) <= 1
+            ? 0
+            : convertToNumber(data[21]) - convertToNumber(data[23]),
         status: data[26],
         billingStatus: dataAD[i]?.at(0),
       }));

@@ -12,6 +12,7 @@ export interface IPiutang {
   dueDate?: string;
   overDue?: string;
   bill?: number;
+  billRemaning?: number;
   payment?: number;
   status?: string;
   billingStatus?: string;
