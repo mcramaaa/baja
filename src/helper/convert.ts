@@ -1,3 +1,7 @@
+import dayjs from "dayjs";
+import "dayjs/locale/id";
+dayjs.locale("id");
+
 export function convertToNumber(value: string) {
   const format = Number(
     value
@@ -19,18 +23,20 @@ export function convertToRupiah(value: number | undefined | 0) {
   return null;
 }
 
-export function converDate(value?: string) {
-  if (value) {
-    return new Date(value).toLocaleString("id-ID", {
+export function converDateWIB(value?: any) {
+  const utcDate = new Date(value);
+  const date = new Date(utcDate.getTime() + 23 * 60 * 60 * 1000);
+  if (date) {
+    return date.toLocaleString("id-ID", {
       day: "2-digit",
       month: "short",
       year: "numeric",
+      timeZone: "Asia/Jakarta",
     });
   }
 }
 
 export function convertCustomDate(value?: string) {
-  console.log(value);
   const monthMap: { [key: string]: string } = {
     Jan: "Jan",
     Feb: "Feb",
