@@ -1,36 +1,30 @@
 import { converDateWIB, convertToRupiah } from "@/helper/convert";
+import { useLayout } from "@/hooks/useLayout";
 import { IPiutang } from "@/interface/IPiutang";
 import { IPiutangFilter } from "@/interface/IPiutangFilter";
 import React, { useEffect, useState } from "react";
 
+interface ISumData {
+  GrandTotalBill?: number;
+  GrandTotalRemaning?: number;
+  GrandTotalPaid?: number;
+}
+
 const useRepPiutang = () => {
+  const { setIsLoading, setIsErr, setIsSuccess } = useLayout();
   const [isPiutang, setIsPiutang] = useState<IPiutang[]>();
+  const [isSumData, setIsSumData] = useState<ISumData>();
   const [isFilter, setIsFilter] = useState<IPiutangFilter>({
     status: undefined,
     startDate: undefined,
     endDate: undefined,
   });
 
-  const groupedInvoices = React.useMemo(() => {
-    if (!isPiutang) return new Map();
-
-    const groups = new Map();
-
-    isPiutang.forEach((invoice) => {
-      const date = new Date(`${invoice.dueDate}`).toISOString().split("T")[0];
-      if (!groups.has(date)) {
-        groups.set(date, []);
-      }
-      groups.get(date).push(invoice);
-    });
-
-    return groups;
-  }, [isPiutang]);
-
   /**
    * API
    */
   async function getPiutang() {
+    setIsLoading(true, "Mengambil data");
     await fetch("/api/piutang")
       .then((res) => res.json())
       .then((data) => {
@@ -66,12 +60,48 @@ const useRepPiutang = () => {
         });
 
         setIsPiutang(filteredData);
+        console.log("hete");
+        setIsLoading(false);
       });
   }
 
   /**
    * Funtion ETC
    */
+  const groupedInvoices = React.useMemo(() => {
+    if (!isPiutang) return new Map();
+
+    const groups = new Map();
+
+    isPiutang.forEach((invoice) => {
+      const date = new Date(`${invoice.dueDate}`).toISOString().split("T")[0];
+      if (!groups.has(date)) {
+        groups.set(date, []);
+      }
+      groups.get(date).push(invoice);
+    });
+
+    return groups;
+  }, [isPiutang]);
+
+  const sumInvoice = React.useMemo(() => {
+    let total = 0;
+    let paid = 0;
+    let remaning = 0;
+    groupedInvoices.forEach((date) => {
+      date.forEach((invoice: any) => {
+        total += invoice.bill;
+        paid += invoice.payment;
+        remaning += invoice.billRemaning;
+      });
+    });
+    setIsSumData((prev) => ({
+      ...prev,
+      GrandTotalBill: total,
+      GrandTotalPaid: paid,
+      GrandTotalRemaning: remaning,
+    }));
+  }, [isPiutang]);
 
   const generateCopyText = () => {
     if (!isPiutang) return "";
@@ -101,9 +131,9 @@ const useRepPiutang = () => {
       copyText += `\n`;
     });
 
-    copyText += `_*Grand Total Hutang ${converDateWIB(
+    copyText += `_*Grand Total Piutang ${converDateWIB(
       startDate
-    )} s/d ${converDateWIB(endDate)} ${convertToRupiah(grandTotal)}*_`;
+    )} s/d ${converDateWIB(endDate)} ${convertToRupiah(grandTotal)},-*_`;
 
     return copyText;
   };
@@ -114,16 +144,32 @@ const useRepPiutang = () => {
 
   // Fungsi untuk handle click copy
   function handleCopy() {
-    const textToCopy = generateCopyText();
-    navigator.clipboard
-      .writeText(textToCopy)
-      .then(() => {
-        alert("Teks berhasil disalin!");
-      })
-      .catch((err) => {
-        console.error("Gagal menyalin teks:", err);
-        alert("Gagal menyalin teks");
-      });
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard
+        .writeText(generateCopyText())
+        .then(() => {
+          setIsSuccess(true, "Berhasil Copy Data");
+        })
+        .catch((err) => {
+          setIsErr(true, "Gagal copy data");
+          console.error("Gagal menyalin teks:", err);
+        });
+    } else {
+      console.warn("Clipboard API tidak didukung di lingkungan ini.");
+      setIsErr(true, "Clipboard API tidak didukung di lingkungan ini.");
+    }
+
+    // const textToCopy = generateCopyText();
+    // navigator.clipboard
+    //   .writeText(textToCopy)
+    //   .then(() => {
+    //     setIsSuccess(true, "Berhasil Copy Data");
+    //     console.log("first");
+    //   })
+    //   .catch((err) => {
+    //     console.error("Gagal menyalin teks:", err);
+    //     setIsErr(true, "Gagal Copy Data");
+    //   });
   }
 
   function handleDateRangeChange(dateRange: {
@@ -145,6 +191,8 @@ const useRepPiutang = () => {
     isPiutang,
     isFilter,
     groupedInvoices,
+    sumInvoice,
+    isSumData,
     setIsFilter,
     handleCopy,
     handleDateRangeChange,

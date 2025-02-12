@@ -42,10 +42,11 @@ async function readPiutang() {
         overDue: data[18],
         bill: convertToNumber(data[21]),
         payment: convertToNumber(data[23]),
-        billRemaning:
-          convertToNumber(data[21]) - convertToNumber(data[23]) <= 1
-            ? 0
-            : convertToNumber(data[21]) - convertToNumber(data[23]),
+        billRemaning: convertToNumber(data[21]) - convertToNumber(data[23]),
+        // billRemaning:
+        //   convertToNumber(data[21]) - convertToNumber(data[23]) <= 1
+        //     ? 0
+        //     : convertToNumber(data[21]) - convertToNumber(data[23]),
         status: data[26],
         billingStatus: dataAD[i]?.at(0),
       }));
