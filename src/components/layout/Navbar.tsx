@@ -16,7 +16,6 @@ export default function Navbar() {
 
   const navLabel = () => {
     if (path === ROUTER.PIUTANG.LAPORAN) {
-      console.log(ROUTER.PIUTANG.LAPORAN);
       return "Laporan Piutang";
     }
   };

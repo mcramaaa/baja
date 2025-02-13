@@ -46,7 +46,7 @@ export function AppDatePickerRange({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-full justify-start text-left font-normal",
+              "w-full rounded-lg justify-start text-left font-normal",
               !date && "text-muted-foreground"
             )}
           >
@@ -61,7 +61,7 @@ export function AppDatePickerRange({
                 format(date.from, "LLL dd, y")
               )
             ) : (
-              <span>Pick a date</span>
+              <span className="text-gray-400">Pilih Tanggal</span>
             )}
           </Button>
         </PopoverTrigger>

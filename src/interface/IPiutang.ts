@@ -17,3 +17,11 @@ export interface IPiutang {
   status?: string;
   billingStatus?: string;
 }
+
+export interface IPiutangFilter {
+  sortBy?: string;
+  status?: number;
+  startDate?: Date;
+  endDate?: Date;
+  custName?: string[];
+}

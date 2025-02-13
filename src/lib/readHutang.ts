@@ -51,7 +51,6 @@ async function readPiutang() {
       }));
     return data;
   } catch (err) {
-    console.error("The API returned an error:", err);
     throw err;
   }
 }

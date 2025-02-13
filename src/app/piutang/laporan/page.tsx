@@ -9,33 +9,46 @@ import { Doughnut } from "react-chartjs-2";
 import { FaRegCopy } from "react-icons/fa6";
 import { BsPatchCheckFill } from "react-icons/bs";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
+import AntItemSelect from "@/components/dropdown/AntItemSelect";
+import RadioBtn from "@/components/button/RadioBtn";
+import DueDateBadge from "@/components/DueDateBadge";
 
-// Registrasi komponen agar bisa digunakan
 Chart.register(ArcElement, Tooltip, Legend);
 
 export default function Piutang() {
   const {
     isPiutang,
     isSumData,
+    isOptions,
     isFilter,
     groupedInvoices,
-    sumInvoice,
     setIsFilter,
     handleCopy,
     handleDateRangeChange,
   } = useRepPiutang();
+
   const chartData = {
     labels: ["Piutang Terbayar", "Piutang Belum Terbayar"],
     datasets: [
       {
-        data: [isSumData?.GrandTotalPaid, isSumData?.GrandTotalRemaning], // Data dalam rupiah (bisa disesuaikan)
-        backgroundColor: ["#00aaff", "#ff7b00"], // Warna setiap bagian chart
-        hoverBackgroundColor: ["#00bbff", "#ff8400"], // Warna saat hover
+        data: [isSumData?.GrandTotalPaid, isSumData?.GrandTotalRemaning],
+        backgroundColor: ["#00aaff", "#ff7b00"],
+        hoverBackgroundColor: ["#00bbff", "#ff8400"],
       },
     ],
   };
 
-  console.log(groupedInvoices);
+  const radioBtn = [
+    {
+      label: "Jatuh Tempo",
+      value: "dueDate",
+    },
+    {
+      label: "Nomor PO",
+      value: "po",
+    },
+  ];
+
   return (
     <div className="">
       <div className="grid grid-cols-5 gap-5">
@@ -43,33 +56,47 @@ export default function Piutang() {
           <h2 className="border-b-2 border-brand-core2 pb-2 text-center font-bold text-lg">
             Filter
           </h2>
+          <RadioBtn
+            label="Sort By"
+            options={radioBtn}
+            onChange={(e) => {
+              console.log(e);
+              setIsFilter({
+                ...isFilter,
+                sortBy: e,
+              });
+            }}
+          />
           <div>
-            <p>date range</p>
+            <p className="font-bold">Date Range</p>
             <AppDatePickerRange
               onChange={(e) => {
-                console.log(e);
                 handleDateRangeChange(e);
               }}
+              className="pb-5"
             />
           </div>
-          <div>
-            <p>Status</p>
-            <select
-              value={isFilter.status}
-              onChange={(e) =>
-                setIsFilter({
-                  ...isFilter,
-                  status: Number(e.target.value) as 0 | 1 | 2,
-                })
-              }
-              className="p-2 border w-full rounded"
-            >
-              <option value={0}>Semua Status</option>
-              <option value={1}>Lunas</option>
-              <option value={2}>Belum Lunas</option>
-            </select>
-          </div>
-          <div></div>
+          <AntItemSelect
+            labelName="Status"
+            option={isOptions.status}
+            onChange={(e) => {
+              setIsFilter({
+                ...isFilter,
+                status: Number(e),
+              });
+            }}
+          />
+          <AntItemSelect
+            labelName="Nama Customer"
+            option={isOptions.company}
+            mode="multiple"
+            onChange={(e) => {
+              setIsFilter({
+                ...isFilter,
+                custName: e as string[],
+              });
+            }}
+          />
         </div>
 
         <div className="col-span-3 text-xs bg-slate-50 rounded-lg p-4 ">
@@ -97,9 +124,21 @@ export default function Piutang() {
             {Array.from(groupedInvoices.entries()).map(
               ([date, invoices], i) => (
                 <div key={date} className={`${i !== 0 && "mt-5"}`}>
-                  <h2 className="font-bold text-sm border-b">
-                    Tgl {converDateWIB(date)}
-                  </h2>
+                  <div className="font-bold text-sm flex items-center gap-5 border-b">
+                    <p>
+                      Tgl{" "}
+                      {isFilter?.sortBy === "dueDate"
+                        ? converDateWIB(date)
+                        : converDateWIB(invoices[0].dueDate)}
+                    </p>
+                    <DueDateBadge
+                      dueDate={
+                        isFilter.sortBy === "dueDate"
+                          ? date
+                          : invoices[0].dueDate
+                      }
+                    />
+                  </div>
                   <div className="flex flex-col gap-2 mt-1">
                     {(invoices as IPiutang[]).map((invoice, index) => (
                       <div
@@ -151,9 +190,9 @@ export default function Piutang() {
                 </div>
               )
             )}
-            <p></p>
           </div>
         </div>
+
         <div className="bg-slate-50 rounded-lg text-xs p-4">
           <div className="px-5 pb-5">
             <Doughnut data={chartData} />

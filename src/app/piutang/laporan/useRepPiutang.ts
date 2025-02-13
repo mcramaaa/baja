@@ -1,7 +1,6 @@
 import { converDateWIB, convertToRupiah } from "@/helper/convert";
 import { useLayout } from "@/hooks/useLayout";
-import { IPiutang } from "@/interface/IPiutang";
-import { IPiutangFilter } from "@/interface/IPiutangFilter";
+import { IPiutang, IPiutangFilter } from "@/interface/IPiutang";
 import React, { useEffect, useState } from "react";
 
 interface ISumData {
@@ -10,14 +9,25 @@ interface ISumData {
   GrandTotalPaid?: number;
 }
 
+interface IOptions {
+  status: { label: string; value: string }[];
+  company: { label: string; value: string }[];
+}
+
 const useRepPiutang = () => {
   const { setIsLoading, setIsErr, setIsSuccess } = useLayout();
   const [isPiutang, setIsPiutang] = useState<IPiutang[]>();
   const [isSumData, setIsSumData] = useState<ISumData>();
+  const [isOptions, setIsOptions] = useState<IOptions>({
+    status: [
+      { label: "Semua", value: "0" },
+      { label: "Lunas", value: "1" },
+      { label: "Belum Lunas", value: "2" },
+    ],
+    company: [],
+  });
   const [isFilter, setIsFilter] = useState<IPiutangFilter>({
-    status: undefined,
-    startDate: undefined,
-    endDate: undefined,
+    sortBy: "dueDate",
   });
 
   /**
@@ -28,39 +38,20 @@ const useRepPiutang = () => {
     await fetch("/api/piutang")
       .then((res) => res.json())
       .then((data) => {
-        // Sort data by dueDate
-        const sortedData = [...data].sort(
-          (a, b) =>
-            new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+        const uniqueCustomers = Array.from(
+          new Map(
+            data.map((item: { name: string }) => [
+              item.name,
+              { label: item.name, value: item.name },
+            ])
+          ).values()
         );
-        const filteredData = sortedData.filter((item) => {
-          // Filter by date range
-          if (isFilter.startDate && isFilter.endDate) {
-            const startDate = isFilter.startDate.toISOString();
-            const endDate = isFilter.endDate.toISOString();
-            const dueDate = new Date(item.dueDate).toISOString();
-            console.log(startDate, endDate);
-            console.log(dueDate);
-            if (dueDate <= startDate || dueDate >= endDate) return false;
-          }
 
-          // Filter by status
-          if (!isFilter.status || isFilter.status === 0) {
-            return true;
-          }
-          if (isFilter.status === 1) {
-            return item.status === "LUNAS";
-          }
-          if (isFilter.status === 2) {
-            return item.status !== "LUNAS";
-          }
-
-          console.log("first");
-          return true;
-        });
-
-        setIsPiutang(filteredData);
-        console.log("hete");
+        setIsPiutang(data);
+        setIsOptions((prev) => ({
+          ...prev,
+          company: uniqueCustomers as { label: string; value: string }[],
+        }));
         setIsLoading(false);
       });
   }
@@ -68,22 +59,88 @@ const useRepPiutang = () => {
   /**
    * Funtion ETC
    */
+
+  // Memproses data
   const groupedInvoices = React.useMemo(() => {
-    if (!isPiutang) return new Map();
-
-    const groups = new Map();
-
-    isPiutang.forEach((invoice) => {
-      const date = new Date(`${invoice.dueDate}`).toISOString().split("T")[0];
-      if (!groups.has(date)) {
-        groups.set(date, []);
+    // Mengurutkan data
+    const sortedData = [...(isPiutang ?? [])].sort((a, b) => {
+      if (isFilter?.sortBy === "po") {
+        const aSub = a.sub ? a.po + a.sub : a.po;
+        const bSub = b.sub ? b.po + b.sub : b.po;
+        return (aSub || "").localeCompare(bSub || "");
+        // return (a.po || "").localeCompare(a.po || "");
+      } else {
+        console.log("first");
+        return (
+          new Date(a.dueDate || "").getTime() -
+          new Date(b.dueDate || "").getTime()
+        );
       }
-      groups.get(date).push(invoice);
+    });
+
+    // Filter data
+    const filteredData = sortedData.filter((item) => {
+      let isValid = true;
+
+      // Filter by date range
+      if (isFilter) {
+        if (isFilter.startDate && isFilter.endDate) {
+          const startDate = new Date(isFilter.startDate).getTime();
+          const endDate = new Date(isFilter.endDate).getTime();
+          const dueDate = new Date(item.dueDate || "").getTime();
+
+          if (!isNaN(dueDate) && (dueDate < startDate || dueDate > endDate)) {
+            isValid = false;
+          }
+        }
+
+        // Filter by customer name
+        if (isFilter.custName && isFilter.custName.length > 0) {
+          if (item.name && !isFilter.custName.includes(item.name)) {
+            isValid = false;
+          }
+        }
+
+        // Filter by status
+        if (isFilter.status === 1 && item.status !== "LUNAS") {
+          isValid = false;
+        }
+        if (isFilter.status === 2 && item.status === "LUNAS") {
+          isValid = false;
+        }
+      }
+
+      return isValid;
+    });
+
+    if (filteredData.length === 0) return new Map();
+
+    // Mengkelompokan data berdasarkan tanggal jatuh tempo / no po
+    const groups = new Map();
+    filteredData.forEach((invoice) => {
+      let groupKey = "";
+
+      if (isFilter?.sortBy !== "po") {
+        console.log("first");
+        groupKey = invoice.dueDate
+          ? new Date(invoice.dueDate).toISOString().split("T")[0]
+          : "Unknown Date";
+      } else {
+        groupKey = invoice.sub
+          ? `${invoice.po}-${invoice.sub}`
+          : invoice.po || "Unknown PO";
+      }
+
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, []);
+      }
+      groups.get(groupKey).push(invoice);
     });
 
     return groups;
-  }, [isPiutang]);
+  }, [isPiutang, isFilter]);
 
+  // Menghitung total tagihan, total bayar, dan total sisa tagihan
   const sumInvoice = React.useMemo(() => {
     let total = 0;
     let paid = 0;
@@ -101,8 +158,9 @@ const useRepPiutang = () => {
       GrandTotalPaid: paid,
       GrandTotalRemaning: remaning,
     }));
-  }, [isPiutang]);
+  }, [isPiutang, isFilter]);
 
+  // Generate laporan data
   const generateCopyText = () => {
     if (!isPiutang) return "";
 
@@ -112,20 +170,19 @@ const useRepPiutang = () => {
     const dates = Array.from(groupedInvoices.keys());
     if (dates.length === 0) return "";
 
-    // Ambil rentang tanggal awal dan akhir
-    const startDate = converDateWIB(isFilter.startDate);
-    const endDate = converDateWIB(isFilter.endDate);
+    const startDate = converDateWIB(isFilter?.startDate);
+    const endDate = converDateWIB(isFilter?.endDate);
 
     copyText += `_*List Piutang Jatuh Tempo ${converDateWIB(
       startDate
     )} sd ${converDateWIB(endDate)}*_\n\n`;
 
     groupedInvoices.forEach((invoices, date) => {
-      copyText += `tgl ${converDateWIB(new Date(date))}\n`;
+      copyText += `Tgl ${converDateWIB(new Date(date))}\n`;
       (invoices as IPiutang[]).forEach((invoice) => {
         const amount = invoice.status === "LUNAS" ? 0 : invoice.billRemaning;
         grandTotal += amount ? amount : 0;
-        copyText += `invoice : ${invoice.name}\n`;
+        copyText += `Invoice : ${invoice.name}\n`;
         copyText += `${convertToRupiah(amount)},-\n`;
       });
       copyText += `\n`;
@@ -142,7 +199,7 @@ const useRepPiutang = () => {
    * HANDLE SUBMIT ETC
    */
 
-  // Fungsi untuk handle click copy
+  // Fungsi handle click copy laporan
   function handleCopy() {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard
@@ -152,24 +209,10 @@ const useRepPiutang = () => {
         })
         .catch((err) => {
           setIsErr(true, "Gagal copy data");
-          console.error("Gagal menyalin teks:", err);
         });
     } else {
-      console.warn("Clipboard API tidak didukung di lingkungan ini.");
       setIsErr(true, "Clipboard API tidak didukung di lingkungan ini.");
     }
-
-    // const textToCopy = generateCopyText();
-    // navigator.clipboard
-    //   .writeText(textToCopy)
-    //   .then(() => {
-    //     setIsSuccess(true, "Berhasil Copy Data");
-    //     console.log("first");
-    //   })
-    //   .catch((err) => {
-    //     console.error("Gagal menyalin teks:", err);
-    //     setIsErr(true, "Gagal Copy Data");
-    //   });
   }
 
   function handleDateRangeChange(dateRange: {
@@ -185,14 +228,19 @@ const useRepPiutang = () => {
 
   useEffect(() => {
     getPiutang();
+  }, []);
+
+  useEffect(() => {
+    groupedInvoices;
   }, [isFilter]);
 
   return {
     isPiutang,
     isFilter,
+    isOptions,
+    isSumData,
     groupedInvoices,
     sumInvoice,
-    isSumData,
     setIsFilter,
     handleCopy,
     handleDateRangeChange,
