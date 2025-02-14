@@ -22,6 +22,7 @@ jobs:
             cd /var/www/bbiz-project/baja/
             git reset --hard
             git pull origin main
+            nvm use v20.10.0
             yarn install
             yarn build
             pm2 stop ecosystem.config.js
