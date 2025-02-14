@@ -2,6 +2,7 @@ export interface IPiutang {
   id?: number;
   po?: string;
   sub?: string;
+  poCust?: string;
   poDate?: string;
   name?: string;
   sj?: string;

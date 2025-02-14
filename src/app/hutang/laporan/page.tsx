@@ -12,6 +12,12 @@ import RadioBtn from "@/components/button/RadioBtn";
 import DueDateBadge from "@/components/DueDateBadge";
 import useRepHutang from "./useRepHutang";
 import { IHutang } from "@/interface/IHutang";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { MdLiveHelp } from "react-icons/md";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -141,20 +147,60 @@ export default function Hutang() {
             {Array.from(groupedInvoices.entries()).map(
               ([date, invoices], i) => (
                 <div key={date} className={`${i !== 0 && "mt-5"}`}>
-                  <div className="font-bold text-sm flex items-center gap-5 border-b">
-                    <p>
-                      Tgl{" "}
-                      {isFilter?.sortBy === "dueDate"
-                        ? converDateWIB(date)
-                        : converDateWIB(invoices[0].dueDate)}
-                    </p>
-                    <DueDateBadge
-                      dueDate={
-                        isFilter.sortBy === "dueDate"
-                          ? date
-                          : invoices[0].dueDate
-                      }
-                    />
+                  <div className="font-bold text-sm flex justify-between items-center gap-5 border-b">
+                    <div className="flex gap-5">
+                      <p>
+                        Tgl{" "}
+                        {isFilter?.sortBy === "dueDate"
+                          ? converDateWIB(date)
+                          : converDateWIB(invoices[0].dueDate)}
+                      </p>
+                      <DueDateBadge
+                        dueDate={
+                          isFilter.sortBy === "dueDate"
+                            ? date
+                            : invoices[0].dueDate
+                        }
+                      />
+                    </div>
+
+                    <Popover>
+                      <PopoverTrigger className="hover:scale-125 rounded-full text-lg mr-3">
+                        <MdLiveHelp />
+                      </PopoverTrigger>
+                      <PopoverContent className="z-50 p-2 text-xs grid grid-cols-2 gap-x-5 w-full">
+                        <span>Tot Tagihan</span>{" "}
+                        <p className="font-bold">
+                          {convertToRupiah(
+                            invoices.reduce(
+                              (total: number, inv: IHutang) =>
+                                total + (inv.bill ?? 0),
+                              0
+                            )
+                          )}
+                        </p>
+                        <span>Tot Pembayaran</span>{" "}
+                        <p className="font-bold">
+                          {convertToRupiah(
+                            invoices.reduce(
+                              (total: number, inv: IHutang) =>
+                                total + (inv.payment ?? 0),
+                              0
+                            )
+                          )}
+                        </p>
+                        <span>Tot Sisa Tagihan</span>{" "}
+                        <p className="font-bold">
+                          {convertToRupiah(
+                            invoices.reduce(
+                              (total: number, inv: IHutang) =>
+                                total + (inv.billRemaning ?? 0),
+                              0
+                            )
+                          )}
+                        </p>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div className="flex flex-col gap-2 mt-1">
                     {(invoices as IHutang[]).map((invoice, index) => (

@@ -82,11 +82,11 @@ const useRepHutang = () => {
       // Filter by date range
       if (isFilter) {
         if (isFilter.startDate && isFilter.endDate) {
-          const startDate = new Date(isFilter.startDate).getTime();
-          const endDate = new Date(isFilter.endDate).getTime();
+          const startDate = isFilter.startDate.getTime();
+          const endDate = isFilter.endDate.getTime() + 23 * 60 * 60 * 1000;
           const dueDate = new Date(item.dueDate || "").getTime();
 
-          if (!isNaN(dueDate) && (dueDate < startDate || dueDate > endDate)) {
+          if (!isNaN(dueDate) && (dueDate <= startDate || dueDate > endDate)) {
             isValid = false;
           }
         }

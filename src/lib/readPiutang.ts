@@ -10,7 +10,7 @@ const sheets = google.sheets({ version: "v4", auth });
 
 async function readPiutang() {
   const spreadsheetId = "1pxAHMxfqHWePa682WKzCOfEf9HRB0NKO6gTc8UlZVOE";
-  const rangeAtoZ = "PIUTANG!A3:AA";
+  const rangeAtoZ = "PIUTANG!A3:AB";
   const rangeAD = "PIUTANG!AD3:AD";
 
   try {
@@ -31,23 +31,24 @@ async function readPiutang() {
         id: i + 1,
         po: data[2],
         sub: data[3],
-        poDate: convertCustomDate(data[4]),
-        name: data[5],
-        sj: data[7],
-        sjDate: convertCustomDate(data[8]),
-        inv: data[9],
-        invDate: convertCustomDate(data[11]),
-        rangeDay: +data[12],
-        dueDate: convertCustomDate(data[13]),
-        overDue: data[18],
-        bill: convertToNumber(data[21]),
-        payment: convertToNumber(data[23]),
-        billRemaning: convertToNumber(data[21]) - convertToNumber(data[23]),
+        poCust: data[4],
+        poDate: convertCustomDate(data[5]),
+        name: data[6],
+        sj: data[8],
+        sjDate: convertCustomDate(data[9]),
+        inv: data[10],
+        invDate: convertCustomDate(data[12]),
+        rangeDay: +data[13],
+        dueDate: convertCustomDate(data[14]),
+        overDue: data[19],
+        bill: convertToNumber(data[22]),
+        payment: convertToNumber(data[24]),
+        billRemaning: convertToNumber(data[22]) - convertToNumber(data[24]),
         // billRemaning:
         //   convertToNumber(data[21]) - convertToNumber(data[23]) <= 1
         //     ? 0
         //     : convertToNumber(data[21]) - convertToNumber(data[23]),
-        status: data[26],
+        status: data[27],
         billingStatus: dataAD[i]?.at(0),
       }));
     return data;

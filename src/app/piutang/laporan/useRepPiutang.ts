@@ -83,11 +83,11 @@ const useRepPiutang = () => {
       // Filter by date range
       if (isFilter) {
         if (isFilter.startDate && isFilter.endDate) {
-          const startDate = new Date(isFilter.startDate).getTime();
-          const endDate = new Date(isFilter.endDate).getTime();
+          const startDate = isFilter.startDate.getTime();
+          const endDate = isFilter.endDate.getTime() + 23 * 60 * 60 * 1000;
           const dueDate = new Date(item.dueDate || "").getTime();
 
-          if (!isNaN(dueDate) && (dueDate < startDate || dueDate > endDate)) {
+          if (!isNaN(dueDate) && (dueDate <= startDate || dueDate > endDate)) {
             isValid = false;
           }
         }
@@ -157,6 +157,49 @@ const useRepPiutang = () => {
     }));
   }, [isPiutang, isFilter]);
 
+  // Generate Tagihan text
+  const generateBillText = () => {
+    if (!isPiutang) return "";
+
+    let copyText = "";
+    let grandTotal = 0;
+
+    const dates = Array.from(groupedInvoices.keys());
+    if (dates.length === 0) return "";
+
+    copyText += `_*List Tagihan Jatuh Tempo*_\n\n`;
+
+    groupedInvoices.forEach((invoices, date) => {
+      (invoices as IPiutang[]).forEach((invoice) => {
+        const amount = invoice.status === "LUNAS" ? 0 : invoice.billRemaning;
+        grandTotal += amount ?? 0;
+        copyText += `- *Nama : ${invoice.name?.replace(/\n/g, " ")}*\n`;
+        copyText += `- No. PO : ${invoice.poCust}\n`;
+        copyText += `- Invoice : ${invoice.inv}\n`;
+        copyText += `- Tgl. Inv : ${converDateWIB(invoice.invDate)}\n`;
+        copyText += `- Tagihan : ${convertToRupiah(invoice.bill)},-\n`;
+        copyText += `- Tgl. JT : *${converDateWIB(invoice.dueDate)}*,-\n\n`;
+      });
+    });
+
+    copyText += `_*Grand Total Tagihan ${convertToRupiah(grandTotal)},-*_\n\n`;
+
+    copyText += `===========================\n`;
+    copyText += `*Mohon segera melakukan pembayaran*\n`;
+    copyText += `- Pembayaran Tagihan :\n`;
+    copyText += `- BCA\n`;
+    copyText += `- A/n PT. BERKAT AGUNG JASA ANDALAN\n`;
+    copyText += `- A/c 469.888.8588\n\n`;
+
+    copyText += `- Pembayaran Ongkir :\n`;
+    copyText += `- BCA\n`;
+    copyText += `- A/n THE SANTOSO TEDJO\n`;
+    copyText += `- A/c 187.061.9703\n\n`;
+
+    copyText += `*NB: Transfer Harap Mencantumkan No. Inv*`;
+    return copyText;
+  };
+
   // Generate laporan data
   const generateCopyText = () => {
     if (!isPiutang) return "";
@@ -197,6 +240,20 @@ const useRepPiutang = () => {
    */
 
   // Fungsi handle click copy laporan
+  function handleCopyBill() {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard
+        .writeText(generateBillText())
+        .then(() => {
+          setIsSuccess(true, "Berhasil Copy Data");
+        })
+        .catch((err) => {
+          setIsErr(true, "Gagal copy data");
+        });
+    } else {
+      setIsErr(true, "Clipboard API tidak didukung di lingkungan ini.");
+    }
+  }
   function handleCopy() {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard
@@ -239,6 +296,7 @@ const useRepPiutang = () => {
     groupedInvoices,
     sumInvoice,
     setIsFilter,
+    handleCopyBill,
     handleCopy,
     handleDateRangeChange,
   };
