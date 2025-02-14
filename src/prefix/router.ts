@@ -3,6 +3,6 @@ export const ROUTER = {
     LAPORAN: "/piutang/laporan",
   },
   HUTANG: {
-    LAPORAN: "/piutang/laporan",
+    LAPORAN: "/hutang/laporan",
   },
 };

@@ -14,9 +14,9 @@ interface IOptions {
   company: { label: string; value: string }[];
 }
 
-const useRepPiutang = () => {
+const useRepHutang = () => {
   const { setIsLoading, setIsErr, setIsSuccess } = useLayout();
-  const [isPiutang, setIsPiutang] = useState<IPiutang[]>();
+  const [isHutang, setIsHutang] = useState<IPiutang[]>();
   const [isSumData, setIsSumData] = useState<ISumData>();
   const [isOptions, setIsOptions] = useState<IOptions>({
     status: [
@@ -34,8 +34,7 @@ const useRepPiutang = () => {
    * API
    */
   async function getPiutang() {
-    setIsLoading(true, "Mengambil data");
-    await fetch("/api/piutang")
+    await fetch("/api/hutang")
       .then((res) => res.json())
       .then((data) => {
         const uniqueCustomers = Array.from(
@@ -47,7 +46,7 @@ const useRepPiutang = () => {
           ).values()
         );
 
-        setIsPiutang(data);
+        setIsHutang(data);
         setIsOptions((prev) => ({
           ...prev,
           company: uniqueCustomers as { label: string; value: string }[],
@@ -63,7 +62,7 @@ const useRepPiutang = () => {
   // Memproses data
   const groupedInvoices = React.useMemo(() => {
     // Mengurutkan data
-    const sortedData = [...(isPiutang ?? [])].sort((a, b) => {
+    const sortedData = [...(isHutang ?? [])].sort((a, b) => {
       if (isFilter?.sortBy === "po") {
         const aSub = a.sub ? a.po + a.sub : a.po;
         const bSub = b.sub ? b.po + b.sub : b.po;
@@ -135,7 +134,7 @@ const useRepPiutang = () => {
     });
 
     return groups;
-  }, [isPiutang, isFilter]);
+  }, [isHutang, isFilter]);
 
   // Menghitung total tagihan, total bayar, dan total sisa tagihan
   const sumInvoice = React.useMemo(() => {
@@ -155,11 +154,11 @@ const useRepPiutang = () => {
       GrandTotalPaid: paid,
       GrandTotalRemaning: remaning,
     }));
-  }, [isPiutang, isFilter]);
+  }, [isHutang, isFilter]);
 
   // Generate laporan data
   const generateCopyText = () => {
-    if (!isPiutang) return "";
+    if (!isHutang) return "";
 
     let copyText = "";
     let grandTotal = 0;
@@ -170,7 +169,7 @@ const useRepPiutang = () => {
     const startDate = converDateWIB(isFilter?.startDate);
     const endDate = converDateWIB(isFilter?.endDate);
 
-    copyText += `_*List Piutang Jatuh Tempo ${converDateWIB(
+    copyText += `_*List Hutang Jatuh Tempo ${converDateWIB(
       startDate
     )} sd ${converDateWIB(endDate)}*_\n\n`;
 
@@ -185,7 +184,7 @@ const useRepPiutang = () => {
       copyText += `\n`;
     });
 
-    copyText += `_*Grand Total Piutang ${converDateWIB(
+    copyText += `_*Grand Total Hutang ${converDateWIB(
       startDate
     )} s/d ${converDateWIB(endDate)} ${convertToRupiah(grandTotal)},-*_`;
 
@@ -224,6 +223,7 @@ const useRepPiutang = () => {
   }
 
   useEffect(() => {
+    setIsLoading(true, "Mengambil data");
     getPiutang();
   }, []);
 
@@ -232,7 +232,7 @@ const useRepPiutang = () => {
   }, [isFilter]);
 
   return {
-    isPiutang,
+    isHutang,
     isFilter,
     isOptions,
     isSumData,
@@ -244,4 +244,4 @@ const useRepPiutang = () => {
   };
 };
 
-export default useRepPiutang;
+export default useRepHutang;

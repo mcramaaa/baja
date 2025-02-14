@@ -10,15 +10,14 @@ import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
 import AntItemSelect from "@/components/dropdown/AntItemSelect";
 import RadioBtn from "@/components/button/RadioBtn";
 import DueDateBadge from "@/components/DueDateBadge";
-import useRepHutang from "../../hutang/laporan/useRepHutang";
+import useRepHutang from "./useRepHutang";
 import { IHutang } from "@/interface/IHutang";
-import useRepPiutang from "./useRepPiutang";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
-export default function Piutang() {
+export default function Hutang() {
   const {
-    isPiutang,
+    isHutang,
     isSumData,
     isOptions,
     isFilter,
@@ -26,10 +25,10 @@ export default function Piutang() {
     setIsFilter,
     handleCopy,
     handleDateRangeChange,
-  } = useRepPiutang();
+  } = useRepHutang();
 
   const chartData = {
-    labels: ["Piutang Terbayar", "Piutang Belum Terbayar"],
+    labels: ["Hutang Terbayar", "Hutang Belum Terbayar"],
     datasets: [
       {
         data: [isSumData?.GrandTotalPaid, isSumData?.GrandTotalRemaning],
@@ -112,18 +111,18 @@ export default function Piutang() {
                     0
                   )}
                 </span>{" "}
-                dari <span className="font-bold">{isPiutang?.length}</span> data
-                Piutang
+                dari <span className="font-bold">{isHutang?.length}</span> data
+                Hutang
               </p>
               <p>
-                Total Piutang : {convertToRupiah(isSumData?.GrandTotalBill)},-
+                Total Hutang : {convertToRupiah(isSumData?.GrandTotalBill)},-
               </p>
             </div>
             <div className="flex gap-5">
-              <button onClick={handleCopy} className="flex items-center gap-2">
+              {/* <button onClick={handleCopy} className="flex items-center gap-2">
                 <FaRegCopy />
                 <span>Copy Tagihan</span>
-              </button>
+              </button> */}
               <button onClick={handleCopy} className="flex items-center gap-2">
                 <FaRegCopy />
                 <span>Copy Laporan</span>
@@ -133,7 +132,7 @@ export default function Piutang() {
 
           <div className="grid gap-2 text-center bg-slate-800 rounded-lg text-white grid-cols-6 p-2 text-sm font-bold">
             <p className="col-span-2 ">No PO</p>
-            <p className="">Tgl Inv</p>
+            <p className="">Tgl PO</p>
             <p className="">Tagihan</p>
             <p className="">Pembayaran</p>
             <p className="">Sisa Tagihan</p>
@@ -163,14 +162,27 @@ export default function Piutang() {
                         key={index}
                         className="bg-white drop-shadow p-3 rounded-lg text-slate-900"
                       >
-                        <p className="font-bold pb-1">{invoice.name}</p>
+                        <p className=" pb-1 text-xs">
+                          <span className="font-bold text-sm">
+                            {invoice.name}{" "}
+                          </span>
+                          <span
+                            className={`${
+                              invoice.inv === "Tagihan Belum Diterima"
+                                ? "text-red-700"
+                                : ""
+                            }`}
+                          >
+                            {`(${invoice.inv})`}
+                          </span>
+                        </p>
                         <div className="grid grid-cols-6 justify-center text-center gap-2">
                           <p className="col-span-2 text-start ">
                             {invoice.po}
                             {invoice.sub && `-${invoice.sub}`}
                           </p>
                           <p className="">
-                            {converDateWIB(invoice.invDate)}{" "}
+                            {converDateWIB(invoice.poDate)}{" "}
                             <span className="font-bold">
                               {+(invoice.rangeDay ?? 0) === 0
                                 ? "(CASH)"
@@ -216,15 +228,15 @@ export default function Piutang() {
             <Doughnut data={chartData} />
           </div>
           <div className="grid grid-cols-2 gap-2 ">
-            <p className="font-bold">Grand Total Piutang</p>
+            <p className="font-bold">Grand Total Hutang</p>
             <p className="text-end">
               {convertToRupiah(isSumData?.GrandTotalBill)},-
             </p>
-            <p className="font-bold">Piutang Terbayar</p>
+            <p className="font-bold">Hutang Terbayar</p>
             <p className="text-end">
               {convertToRupiah(isSumData?.GrandTotalPaid)},-
             </p>
-            <p className="font-bold">Piutang Belum Terbayar</p>
+            <p className="font-bold">Hutang Belum Terbayar</p>
             <p className="text-end">
               {convertToRupiah(isSumData?.GrandTotalRemaning)},-
             </p>

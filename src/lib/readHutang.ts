@@ -8,23 +8,23 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: "v4", auth });
 
-async function readPiutang() {
+async function readHutang() {
   const spreadsheetId = "1frEsU9GKhi0CGJng_K0Wf5wZW-4GvMDWz2T8cCULVes";
-  const rangeAtoZ = "PIUTANG!A3:AA";
-  const rangeAD = "PIUTANG!AD3:AD";
+  const rangeAtoZ = "HUTANG BY ORDER!A3:AA";
+  // const rangeAD = "HUTANG BY ORDER!AD3:AD";
 
   try {
     const resAtoZ = await sheets.spreadsheets.values.get({
       spreadsheetId,
       range: rangeAtoZ,
     });
-    const resAD = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: rangeAD,
-    });
+    // const resAD = await sheets.spreadsheets.values.get({
+    //   spreadsheetId,
+    //   range: rangeAD,
+    // });
 
     const dataAtoZ = resAtoZ.data.values || [];
-    const dataAD = resAD.data.values || [];
+    // const dataAD = resAD.data.values || [];
     const data = dataAtoZ
       .filter((data) => data[2] !== "")
       .map((data, i) => ({
@@ -33,21 +33,20 @@ async function readPiutang() {
         sub: data[3],
         poDate: convertCustomDate(data[4]),
         name: data[5],
-        sj: data[7],
-        sjDate: convertCustomDate(data[8]),
-        inv: data[9],
-        invDate: convertCustomDate(data[11]),
-        rangeDay: +data[12],
-        dueDate: convertCustomDate(data[13]),
+        inv: data[8],
+        invDate: convertCustomDate(data[9]),
+        rangeDay: +data[11],
+        dueDate: convertCustomDate(data[12]),
         overDue: data[18],
-        bill: convertToNumber(data[21]),
-        payment: convertToNumber(data[23]),
+        bill: convertToNumber(data[18]),
+        payment: convertToNumber(data[20]),
+        paymentDate: convertCustomDate(data[13]),
         billRemaning:
-          convertToNumber(data[21]) - convertToNumber(data[23]) <= 1
+          convertToNumber(data[18]) - convertToNumber(data[20]) <= 1
             ? 0
-            : convertToNumber(data[21]) - convertToNumber(data[23]),
-        status: data[26],
-        billingStatus: dataAD[i]?.at(0),
+            : convertToNumber(data[18]) - convertToNumber(data[20]),
+        status: data[24],
+        // billingStatus: dataAD[i]?.at(0),
       }));
     return data;
   } catch (err) {
@@ -55,4 +54,4 @@ async function readPiutang() {
   }
 }
 
-export default readPiutang;
+export default readHutang;

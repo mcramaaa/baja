@@ -18,6 +18,9 @@ export default function Navbar() {
     if (path === ROUTER.PIUTANG.LAPORAN) {
       return "Laporan Piutang";
     }
+    if (path === ROUTER.HUTANG.LAPORAN) {
+      return "Laporan Hutang";
+    }
   };
 
   return (

@@ -25,9 +25,9 @@ export function convertToRupiah(value: number | undefined | 0) {
 
 export function converDateWIB(value?: any) {
   const utcDate = new Date(value);
-  const date = new Date(utcDate.getTime() + 23 * 60 * 60 * 1000);
-  if (date) {
-    return date.toLocaleString("id-ID", {
+  // const date = new Date(utcDate.getTime() + 23 * 60 * 60 * 1000);
+  if (utcDate) {
+    return utcDate.toLocaleString("id-ID", {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -58,7 +58,9 @@ export function convertCustomDate(value?: string) {
     const validMonth = monthMap[month] || "";
 
     const validDateString = `${day} ${validMonth} ${year}`;
+    const date = new Date(validDateString);
+    const wibDate = new Date(date.getTime() + 23 * 60 * 60 * 1000);
 
-    return new Date(validDateString);
+    return new Date(wibDate);
   }
 }
