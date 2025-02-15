@@ -28,7 +28,7 @@ async function readPiutang() {
     const data = dataAtoZ
       .filter((data) => data[2] !== "")
       .map((data, i) => ({
-        id: i + 1,
+        id: i + 3,
         po: data[2],
         sub: data[3],
         poCust: data[4],

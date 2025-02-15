@@ -18,6 +18,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { MdLiveHelp } from "react-icons/md";
+import { Checkbox } from "antd";
+import SelectModalPiutang from "./components/SelectModalPiutang";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -27,11 +29,14 @@ export default function Piutang() {
     isSumData,
     isOptions,
     isFilter,
+    isSelected,
     groupedInvoices,
     setIsFilter,
     handleCopyBill,
     handleCopy,
     handleDateRangeChange,
+    handleChangeSelect,
+    handleSubmitPay,
   } = useRepPiutang();
 
   const chartData = {
@@ -123,7 +128,19 @@ export default function Piutang() {
                 Total Piutang : {convertToRupiah(isSumData?.GrandTotalBill)},-
               </p>
             </div>
+            {isSelected && (
+              <div>
+                <p>{isSelected?.length} Dipilih</p>
+              </div>
+            )}
             <div className="flex gap-5">
+              <SelectModalPiutang />
+              {/* <button
+                onClick={handleSubmitPay}
+                className="flex items-center gap-2"
+              >
+                <span>Bayar</span>
+              </button> */}
               <button
                 onClick={handleCopyBill}
                 className="flex items-center gap-2"
@@ -208,43 +225,56 @@ export default function Piutang() {
                     {(invoices as IHutang[]).map((invoice, index) => (
                       <div
                         key={index}
-                        className="bg-white drop-shadow p-3 rounded-lg text-slate-900"
+                        className="bg-white flex items-center gap-3 drop-shadow p-3 rounded-lg text-slate-900"
                       >
-                        <p className="font-bold pb-1">{invoice.name}</p>
-                        <div className="grid grid-cols-6 justify-center text-center gap-2">
-                          <p className="col-span-2 text-start ">
-                            {invoice.po}
-                            {invoice.sub && `-${invoice.sub}`}
-                          </p>
-                          <p className="">
-                            {converDateWIB(invoice.invDate)}{" "}
-                            <span className="font-bold">
-                              {+(invoice.rangeDay ?? 0) === 0
-                                ? "(CASH)"
-                                : `(${invoice.rangeDay} Hari)`}
-                            </span>
-                          </p>
-                          <p className="">{convertToRupiah(invoice.bill)}</p>
-                          <p className="">
-                            {invoice.payment === 0
-                              ? "Rp 0"
-                              : convertToRupiah(invoice.payment)}
-                          </p>
-                          <div className="flex items-center gap-2 justify-between text-center">
-                            <div className="w-full">
-                              <p className="">
-                                {invoice.status === "LUNAS"
-                                  ? "Rp. 0"
-                                  : `${convertToRupiah(invoice.billRemaning)}`}
-                              </p>
+                        <div>
+                          <Checkbox
+                            onChange={(e) => {
+                              console.log(e.target.checked);
+                              handleChangeSelect(e.target.checked, invoice);
+                            }}
+                          />
+                          {invoice.id}
+                        </div>
+                        <div className="w-full">
+                          <p className="font-bold pb-1">{invoice.name}</p>
+                          <div className="grid grid-cols-6 justify-center text-center gap-2">
+                            <p className="col-span-2 text-start ">
+                              {invoice.po}
+                              {invoice.sub && `-${invoice.sub}`}
+                            </p>
+                            <p className="">
+                              {converDateWIB(invoice.invDate)}{" "}
+                              <span className="font-bold">
+                                {+(invoice.rangeDay ?? 0) === 0
+                                  ? "(CASH)"
+                                  : `(${invoice.rangeDay} Hari)`}
+                              </span>
+                            </p>
+                            <p className="">{convertToRupiah(invoice.bill)}</p>
+                            <p className="">
+                              {invoice.payment === 0
+                                ? "Rp 0"
+                                : convertToRupiah(invoice.payment)}
+                            </p>
+                            <div className="flex items-center gap-2 justify-between text-center">
+                              <div className="w-full">
+                                <p className="">
+                                  {invoice.status === "LUNAS"
+                                    ? "Rp. 0"
+                                    : `${convertToRupiah(
+                                        invoice.billRemaning
+                                      )}`}
+                                </p>
+                              </div>
+                              <BsPatchCheckFill
+                                className={`${
+                                  invoice.status === "LUNAS"
+                                    ? "text-green-600"
+                                    : "text-slate-400"
+                                } text-lg`}
+                              />
                             </div>
-                            <BsPatchCheckFill
-                              className={`${
-                                invoice.status === "LUNAS"
-                                  ? "text-green-600"
-                                  : "text-slate-400"
-                              } text-lg`}
-                            />
                           </div>
                         </div>
                       </div>
