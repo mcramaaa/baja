@@ -21,6 +21,9 @@ export default function Navbar() {
     if (path === ROUTER.HUTANG.LAPORAN) {
       return "Laporan Hutang";
     }
+    if (path === ROUTER.LABA) {
+      return "Laporan Laba";
+    }
   };
 
   return (
@@ -31,9 +34,11 @@ export default function Navbar() {
           {NAVMENU.map((menu, i) => (
             <DropDown
               key={i}
+              path={menu.path}
               title={menu.label}
               menu={menu.submenu}
               isOpen={isMenuOpen === i}
+              setIsMenuOpen={setisMenuOpen}
               onClick={() => handleMenuOpen(i)}
             />
           ))}

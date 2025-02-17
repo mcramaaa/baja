@@ -134,7 +134,7 @@ export default function Piutang() {
               </div>
             )}
             <div className="flex gap-5">
-              <SelectModalPiutang />
+              {/* <SelectModalPiutang /> */}
               {/* <button
                 onClick={handleSubmitPay}
                 className="flex items-center gap-2"

@@ -22,4 +22,9 @@ export const NAVMENU: INavMenu[] = [
     label: "HUTANG",
     submenu: [{ label: "Laporan", path: ROUTER.HUTANG.LAPORAN }],
   },
+  {
+    label: "LABA",
+    path: ROUTER.LABA,
+    // submenu: [{ label: "Laporan", path: ROUTER.HUTANG.LAPORAN }],
+  },
 ];

@@ -5,4 +5,5 @@ export const ROUTER = {
   HUTANG: {
     LAPORAN: "/hutang/laporan",
   },
+  LABA: "/laba",
 };
