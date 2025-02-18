@@ -10,8 +10,10 @@ export interface IHutang {
   dueDate?: string;
   overDue?: string;
   bill?: number;
+  totBill?: number;
   billRemaning?: number;
   payment?: number;
+  totPayment?: number;
   paymentDate?: string;
   status?: string;
   billingStatus?: string;

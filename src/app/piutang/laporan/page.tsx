@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/popover";
 import { MdLiveHelp } from "react-icons/md";
 import { Checkbox } from "antd";
-import SelectModalPiutang from "./components/SelectModalPiutang";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
