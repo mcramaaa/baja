@@ -8,7 +8,7 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: "v4", auth });
 
-async function readPiutang() {
+async function readDatabase() {
   const spreadsheetId = "1Q3HDxCv8U1SjR4Ro-Xt6WAlOIeq7Z1E-FoCf_6APOP4";
   const rangeAtoZ = "PENJUALAN2!A2:Z";
   // const rangeAD = "PIUTANG!AD3:AD";
@@ -24,33 +24,31 @@ async function readPiutang() {
     // });
 
     const dataAtoZ = resAtoZ.data.values || [];
+    console.log(dataAtoZ);
     // const dataAD = resAD.data.values || [];
     const data = dataAtoZ
-      .filter((data) => data[2] !== "")
+      .filter((data) => data[0] !== "")
       .map((data, i) => ({
         id: i + 2,
-        po: data[1],
-        sub: data[2],
-        poCust: data[4],
-        poDate: convertCustomDate(data[5]),
+        po: data[0],
+        sub: data[1],
+        poCust: data[5],
+        poDate: convertCustomDate(data[4]),
         name: data[6],
-        sj: data[8],
-        sjDate: convertCustomDate(data[9]),
-        inv: data[10],
-        invDate: convertCustomDate(data[12]),
-        rangeDay: +data[13],
-        dueDate: convertCustomDate(data[14]),
-        overDue: data[19],
-        bill: convertToNumber(data[22]),
-        totBill: convertToNumber(data[23]),
-        payment: convertToNumber(data[24]),
-        totPayment: convertToNumber(data[25]),
-        billRemaning: convertToNumber(data[22]) - convertToNumber(data[24]),
+        // sj: data[8],
+        // sjDate: convertCustomDate(data[9]),
+        inv: data[23],
+        invDate: convertCustomDate(data[24]),
+        bill: convertToNumber(data[14]),
+        totBill: convertToNumber(data[16]),
+        // payment: convertToNumber(data[24]),
+        // totPayment: convertToNumber(data[25]),
+        // billRemaning: convertToNumber(data[22]) - convertToNumber(data[24]),
         // billRemaning:
         //   convertToNumber(data[21]) - convertToNumber(data[23]) <= 1
         //     ? 0
         //     : convertToNumber(data[21]) - convertToNumber(data[23]),
-        status: data[27],
+        // status: data[27],
         // billingStatus: dataAD[i]?.at(0),
       }));
     return data;
@@ -59,4 +57,4 @@ async function readPiutang() {
   }
 }
 
-export default readPiutang;
+export default readDatabase;

@@ -24,10 +24,12 @@ const useRepLaba = () => {
       setIsLoading(true, "Mengambil Data");
 
       // Fetch hutang dan piutang secara paralel
-      const [hutangRes, piutangRes] = await Promise.all([
+      const [penjualan, hutangRes, piutangRes] = await Promise.all([
+        fetch("api/read-database/penjualan").then((res) => res.json()),
         fetch("/api/hutang").then((res) => res.json()),
         fetch("/api/piutang").then((res) => res.json()),
       ]);
+      console.log(penjualan);
 
       // Gabungkan data menjadi map dengan `po` sebagai key
       const combinedMap = new Map<string, IDataLaba>();
