@@ -39,7 +39,9 @@ async function readHutang() {
         dueDate: convertCustomDate(data[12]),
         overDue: data[18],
         bill: convertToNumber(data[18]),
+        totBill: convertToNumber(data[19]),
         payment: convertToNumber(data[20]),
+        totPayment: convertToNumber(data[21]),
         paymentDate: convertCustomDate(data[13]),
         billRemaning:
           convertToNumber(data[18]) - convertToNumber(data[20]) <= 1

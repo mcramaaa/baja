@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroui/modal": "^2.2.8",
     "@heroui/skeleton": "^2.2.6",
     "@heroui/spinner": "^2.2.7",
     "@heroui/system": "^2.4.7",

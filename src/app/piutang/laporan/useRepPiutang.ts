@@ -17,6 +17,7 @@ interface IOptions {
 const useRepPiutang = () => {
   const { setIsLoading, setIsErr, setIsSuccess } = useLayout();
   const [isPiutang, setIsPiutang] = useState<IPiutang[]>();
+  const [isSelected, setIsSelected] = useState<IPiutang[]>();
   const [isSumData, setIsSumData] = useState<ISumData>();
   const [isOptions, setIsOptions] = useState<IOptions>({
     status: [
@@ -29,6 +30,7 @@ const useRepPiutang = () => {
   const [isFilter, setIsFilter] = useState<IPiutangFilter>({
     sortBy: "dueDate",
   });
+  const [isModalSelect, setIsModalSelect] = useState(false);
 
   /**
    * API
@@ -55,6 +57,62 @@ const useRepPiutang = () => {
         setIsLoading(false);
       });
   }
+
+  const handleSubmitPay = async () => {
+    // e.preventDefault();
+
+    console.log("first");
+    // const payload = [
+    //   {
+    //     id: 3,
+    //     billing: "Selesai",
+    //     paymentMethod: "TF a/n Perorangan ke BAJA",
+    //     installments: [
+    //       { amount: 561086792, date: "06 Feb 2025" },
+    //       // { amount: 36587800, date: "07 Feb 2025" },
+    //     ],
+    //   },
+    //   // {
+    //   //   id: 4,
+    //   //   billing: "Belum Lunas",
+    //   //   paymentMethod: "CEK ke BAJA",
+    //   //   installments: [{ amount: 15000000, date: "10 Mar 2025" }],
+    //   // },
+    // ];
+    const payload = [
+      {
+        id: 343,
+        billing: "Selesai",
+        paymentMethod: "TF a/n Perorangan ke BAJA",
+        installments: [{ amount: 9926000, date: "15 Feb 2025" }],
+      },
+      {
+        id: 344,
+        billing: "Selesai",
+        paymentMethod: "CEK ke BAJA",
+        installments: [{ amount: 7951000, date: "10 Mar 2025" }],
+      },
+    ];
+
+    try {
+      const response = await fetch("/api/pay-piutang", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+      console.log(result);
+      if (result.success) {
+        alert("Data berhasil diperbarui!");
+      } else {
+        alert("Gagal: " + result.error);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Terjadi kesalahan saat mengirim data.");
+    }
+  };
 
   /**
    * Funtion ETC
@@ -236,6 +294,19 @@ const useRepPiutang = () => {
   };
 
   /**
+   * HANDLE CHANGE ETC
+   */
+
+  console.log(isSelected);
+  function handleChangeSelect(e: boolean, item: IPiutang) {
+    if (e) {
+      setIsSelected((prev) => [...(prev ?? []), item]);
+    } else {
+      setIsSelected((prev) => prev?.filter((i) => i !== item));
+    }
+  }
+
+  /**
    * HANDLE SUBMIT ETC
    */
 
@@ -293,9 +364,14 @@ const useRepPiutang = () => {
     isFilter,
     isOptions,
     isSumData,
+    isSelected,
+    isModalSelect,
     groupedInvoices,
     sumInvoice,
+    setIsModalSelect,
+    handleChangeSelect,
     setIsFilter,
+    handleSubmitPay,
     handleCopyBill,
     handleCopy,
     handleDateRangeChange,

@@ -28,7 +28,7 @@ async function readPiutang() {
     const data = dataAtoZ
       .filter((data) => data[2] !== "")
       .map((data, i) => ({
-        id: i + 1,
+        id: i + 3,
         po: data[2],
         sub: data[3],
         poCust: data[4],
@@ -42,7 +42,9 @@ async function readPiutang() {
         dueDate: convertCustomDate(data[14]),
         overDue: data[19],
         bill: convertToNumber(data[22]),
+        totBill: convertToNumber(data[23]),
         payment: convertToNumber(data[24]),
+        totPayment: convertToNumber(data[25]),
         billRemaning: convertToNumber(data[22]) - convertToNumber(data[24]),
         // billRemaning:
         //   convertToNumber(data[21]) - convertToNumber(data[23]) <= 1
