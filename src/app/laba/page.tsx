@@ -132,10 +132,10 @@ export default function page() {
                 <div className="flex gap-5 pb-2">
                   <p className="font-bold">
                     {item.po}
-                    {item.subPo &&
+                    {/* {item.subPo &&
                       item.subPo !== "OA" &&
                       item.subPo !== "OP" &&
-                      `-${item.subPo}`}
+                      `-${item.subPo}`} */}
                   </p>
                   <p>{converDateWIB(item.supDate)}</p>
                   <p>{converDateWIB(item.cusDate)}</p>

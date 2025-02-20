@@ -24,12 +24,10 @@ const useRepLaba = () => {
       setIsLoading(true, "Mengambil Data");
 
       // Fetch hutang dan piutang secara paralel
-      const [penjualan, hutangRes, piutangRes] = await Promise.all([
-        fetch("api/read-database/penjualan").then((res) => res.json()),
+      const [hutangRes, piutangRes] = await Promise.all([
         fetch("/api/hutang").then((res) => res.json()),
         fetch("/api/piutang").then((res) => res.json()),
       ]);
-      console.log(penjualan);
 
       // Gabungkan data menjadi map dengan `po` sebagai key
       const combinedMap = new Map<string, IDataLaba>();
@@ -57,7 +55,7 @@ const useRepLaba = () => {
         if (piutang.po && piutang.totBill) {
           if (combinedMap.has(piutang.po)) {
             const existing = combinedMap.get(piutang.po)!;
-            existing.poCust = piutang.sub;
+            existing.subPoCust = piutang.sub;
             existing.cusDate = piutang.poDate;
             existing.cusName = piutang.name;
             existing.sell = piutang.totBill;
@@ -142,6 +140,8 @@ const useRepLaba = () => {
 
     return filteredData;
   }, [isFilter, isData]);
+
+  console.log(filteredData);
 
   const sumData = React.useMemo(() => {
     // Hitung total buy, sell, profit, dan percentage
