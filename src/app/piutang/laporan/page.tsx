@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { MdLiveHelp } from "react-icons/md";
-import { Checkbox } from "antd";
+import { Checkbox, Modal } from "antd";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -29,8 +29,10 @@ export default function Piutang() {
     isOptions,
     isFilter,
     isSelected,
+    isModalSelect,
     groupedInvoices,
     setIsFilter,
+    setIsModalSelect,
     handleCopyBill,
     handleCopy,
     handleDateRangeChange,
@@ -62,6 +64,30 @@ export default function Piutang() {
 
   return (
     <div className="">
+      <Modal
+        open={isModalSelect}
+        title="Piutang Terpilih"
+        className=""
+        onCancel={() => setIsModalSelect(false)}
+      >
+        <div className="flex max-h-[70vh] flex-col gap-5 overflow-y-scroll p-2">
+          {isSelected &&
+            isSelected.map((item, i) => (
+              <div
+                key={i}
+                className="drop-shadow-sm border w-full p-2 bg-white rounded-lg"
+              >
+                <div className="flex gap-3">
+                  <p className="font-bold">{item.inv}</p>
+                  <p>{converDateWIB(item.dueDate)}</p>
+                </div>
+                <p className="">{item.name}</p>
+                <p>{convertToRupiah(item.bill)}</p>
+                <p>{convertToRupiah(item.billRemaning)}</p>
+              </div>
+            ))}
+        </div>
+      </Modal>
       <div className="grid grid-cols-5 gap-5">
         <div className="flex bg-slate-50 p-4 text-sm rounded-lg gap-4 flex-col mb-6 h-fit">
           <h2 className="border-b-2 border-brand-core2 pb-2 text-center font-bold text-lg">
@@ -128,9 +154,9 @@ export default function Piutang() {
               </p>
             </div>
             {isSelected && (
-              <div>
+              <button onClick={() => setIsModalSelect(true)}>
                 <p>{isSelected?.length} Dipilih</p>
-              </div>
+              </button>
             )}
             <div className="flex gap-5">
               {/* <SelectModalPiutang /> */}

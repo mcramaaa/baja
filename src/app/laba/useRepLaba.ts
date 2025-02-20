@@ -141,8 +141,6 @@ const useRepLaba = () => {
     return filteredData;
   }, [isFilter, isData]);
 
-  console.log(filteredData);
-
   const sumData = React.useMemo(() => {
     // Hitung total buy, sell, profit, dan percentage
     let buyTotal = 0;
