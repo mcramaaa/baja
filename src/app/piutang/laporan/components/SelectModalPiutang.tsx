@@ -12,7 +12,6 @@ export default function SelectModalPiutang() {
   // const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [isOpen, setIsOpen] = useState(false);
 
-  console.log(isOpen);
   function handleOpenModal() {
     setIsOpen(!true);
   }

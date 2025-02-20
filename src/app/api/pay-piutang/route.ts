@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const payload = await req.json();
-    console.log(payload);
 
     const auth = new google.auth.GoogleAuth({
       keyFile: "./key.json",
@@ -31,8 +30,6 @@ export async function POST(req: Request) {
         installments[2]?.date || "", // AM - Tanggal Bayar 3
       ];
 
-      console.log(valuesToUpdate);
-
       // Tambahkan ke batch update
       updateRequests.push({
         range: `PIUTANG2!AE${id}:AM${id}`,
@@ -56,7 +53,6 @@ export async function POST(req: Request) {
       message: "Data berhasil diperbarui!",
     });
   } catch (error) {
-    console.error(error);
     return NextResponse.json({
       success: false,
       error: "Terjadi kesalahan saat mengupdate data.",

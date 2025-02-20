@@ -1,6 +1,6 @@
 import { useLayout } from "@/hooks/useLayout";
 import { IHutang } from "@/interface/IHutang";
-import { IDataLaba } from "@/interface/ILaba";
+import { IDataLaba, IPenjualan } from "@/interface/ILaba";
 import { IPiutang } from "@/interface/IPiutang";
 import React, { useEffect, useState } from "react";
 
@@ -24,12 +24,10 @@ const useRepLaba = () => {
       setIsLoading(true, "Mengambil Data");
 
       // Fetch hutang dan piutang secara paralel
-      const [penjualan, hutangRes, piutangRes] = await Promise.all([
+      const [penjualan, hutangRes] = await Promise.all([
         fetch("api/read-database/penjualan").then((res) => res.json()),
         fetch("/api/hutang").then((res) => res.json()),
-        fetch("/api/piutang").then((res) => res.json()),
       ]);
-      console.log(penjualan);
 
       // Gabungkan data menjadi map dengan `po` sebagai key
       const combinedMap = new Map<string, IDataLaba>();
@@ -40,11 +38,11 @@ const useRepLaba = () => {
           combinedMap.set(hutang.po, {
             po: hutang.po,
             subPo: hutang.sub,
-            supDate: hutang.poDate,
+            supDate: hutang.poDate ? new Date(hutang.poDate) : undefined,
             supName: hutang.name,
             buy: hutang.totBill,
-            cusDate: undefined,
-            cusName: undefined,
+            custDate: undefined,
+            custName: undefined,
             sell: 0,
             profit: 0,
             percentage: 0,
@@ -53,37 +51,36 @@ const useRepLaba = () => {
       });
 
       // Gabungkan data piutang berdasarkan `po`
-      piutangRes.forEach((piutang: IPiutang) => {
-        if (piutang.po && piutang.totBill) {
-          if (combinedMap.has(piutang.po)) {
-            const existing = combinedMap.get(piutang.po)!;
-            existing.poCust = piutang.sub;
-            existing.cusDate = piutang.poDate;
-            existing.cusName = piutang.name;
-            existing.sell = piutang.totBill;
-            existing.profit = piutang.totBill - (existing.buy || 0);
+      penjualan.forEach((sell: IPenjualan) => {
+        if (sell.po && sell.totBill) {
+          if (combinedMap.has(sell.po)) {
+            const existing = combinedMap.get(sell.po)!;
+            existing.poCust = sell.sub;
+            existing.custDate = sell.invDate;
+            existing.custName = sell.name;
+            existing.sell = sell.totBill;
+            existing.profit = sell.totBill - (existing.buy || 0);
             existing.percentage =
-              piutang.totBill > 0
+              sell.totBill > 0
                 ? parseFloat(
-                    ((existing.profit / piutang.totBill) * 100).toFixed(2)
+                    ((existing.profit / sell.totBill) * 100).toFixed(2)
                   )
                 : 0;
 
-            combinedMap.set(piutang.po, existing);
+            combinedMap.set(sell.po, existing);
           } else {
-            // Jika tidak ada di hutang, tambahkan dari piutang
-            combinedMap.set(piutang.po, {
-              po: piutang.po,
-              subPo: piutang.sub,
+            // Jika tidak ada di hutang, tambahkan dari sell
+            combinedMap.set(sell.po, {
+              po: sell.po,
+              subPo: sell.sub,
               supDate: undefined,
               supName: undefined,
               buy: 0,
-              poCust: piutang.po,
-
-              cusDate: piutang.poDate,
-              cusName: piutang.name,
-              sell: piutang.bill,
-              profit: piutang.bill,
+              poCust: sell.po,
+              custDate: sell.poDate,
+              custName: sell.name,
+              sell: sell.bill,
+              profit: sell.bill,
               percentage: 100,
             });
           }
@@ -97,7 +94,6 @@ const useRepLaba = () => {
       setIsSuccess(true, "Data berhasil diambil");
     } catch (error) {
       setIsErr(true, "Gagal mengambil data");
-      console.error("Error fetching data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -107,12 +103,13 @@ const useRepLaba = () => {
    * FUNCTION ETC
    */
 
-  console.log(isFilter);
   const filteredData = React.useMemo(() => {
     // Filter berdasarkan rentang tanggal cusDate
     let filteredData = isData.filter((item) => {
       if (isFilter?.startDate && isFilter.endDate) {
-        const cusDate = item.cusDate ? new Date(item.cusDate).getTime() : null;
+        const cusDate = item.custDate
+          ? new Date(item.custDate).getTime()
+          : null;
         const startDate = new Date(isFilter.startDate).getTime();
         const endDate =
           new Date(isFilter.endDate).getTime() + 23 * 60 * 60 * 1000;
@@ -128,8 +125,8 @@ const useRepLaba = () => {
     // Sorting berdasarkan sortBy
     if (isFilter?.sortBy === "cusDate") {
       filteredData = filteredData.sort((a, b) => {
-        const dateA = a.cusDate ? new Date(a.cusDate).getTime() : 0;
-        const dateB = b.cusDate ? new Date(b.cusDate).getTime() : 0;
+        const dateA = a.custDate ? new Date(a.custDate).getTime() : 0;
+        const dateB = b.custDate ? new Date(b.custDate).getTime() : 0;
         return dateA - dateB;
       });
     } else if (isFilter?.sortBy === "po") {
@@ -151,7 +148,6 @@ const useRepLaba = () => {
     let percentageTotal = 0;
 
     filteredData.forEach((item) => {
-      console.log(item.buy);
       buyTotal += item.buy || 0;
       sellTotal += item.sell || 0;
       profitTotal += item.profit || 0;
@@ -167,8 +163,6 @@ const useRepLaba = () => {
       percentageTotal,
     };
   }, [isFilter, isData]);
-
-  console.log(sumData);
 
   /**
    * HANDLE CHANGE ETC

@@ -18,6 +18,8 @@ export default function page() {
     setIsFilter,
     handleDateRangeChange,
   } = useRepLaba();
+
+  console.log(filteredData);
   const chartData = {
     labels: ["Total Beli", "Total Jual", "Profit"],
     datasets: [
@@ -138,7 +140,7 @@ export default function page() {
                       `-${item.subPo}`}
                   </p>
                   <p>{converDateWIB(item.supDate)}</p>
-                  <p>{converDateWIB(item.cusDate)}</p>
+                  <p>{converDateWIB(item.custDate)}</p>
                 </div>
                 <div className="grid grid-cols-5">
                   <div className="col-span-2 grid grid-cols-2">
@@ -146,7 +148,7 @@ export default function page() {
                     <p>{convertToRupiah(item.buy)}</p>
                   </div>
                   <div className="col-span-2 grid grid-cols-2">
-                    <p className=""> {item.cusName}</p>
+                    <p className=""> {item.custName}</p>
                     <p>{convertToRupiah(item.sell)}</p>
                   </div>
                   <p className="grid grid-cols-2">

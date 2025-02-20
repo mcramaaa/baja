@@ -1,13 +1,11 @@
 // app/api/piutang/route.ts
-import readDatabase from "@/lib/readDatabase";
-import readPiutang from "@/lib/readPiutang";
+import readPenjualan from "@/lib/readPenjualan";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
     // Logika untuk mengambil data piutang
-    const data = await readDatabase();
-    console.log(data);
+    const data = await readPenjualan();
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
