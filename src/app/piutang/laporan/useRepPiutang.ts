@@ -49,11 +49,11 @@ const useRepPiutang = () => {
           ).values()
         );
 
-        setIsPiutang(data);
-        setIsOptions((prev) => ({
-          ...prev,
-          company: uniqueCustomers as { label: string; value: string }[],
-        }));
+        // setIsPiutang(data);
+        // setIsOptions((prev) => ({
+        //   ...prev,
+        //   company: uniqueCustomers as { label: string; value: string }[],
+        // }));
         setIsLoading(false);
       });
   }
