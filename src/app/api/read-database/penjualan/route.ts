@@ -7,7 +7,6 @@ export async function GET() {
   try {
     // Logika untuk mengambil data piutang
     const data = await readDatabase();
-    console.log(data);
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(

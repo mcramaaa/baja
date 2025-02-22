@@ -24,7 +24,6 @@ async function readDatabase() {
     // });
 
     const dataAtoZ = resAtoZ.data.values || [];
-    console.log(dataAtoZ);
     // const dataAD = resAD.data.values || [];
     const data = dataAtoZ
       .filter((data) => data[0] !== "")

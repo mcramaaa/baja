@@ -61,7 +61,6 @@ const useRepPiutang = () => {
   const handleSubmitPay = async () => {
     // e.preventDefault();
 
-    console.log("first");
     // const payload = [
     //   {
     //     id: 3,
@@ -102,14 +101,12 @@ const useRepPiutang = () => {
       });
 
       const result = await response.json();
-      console.log(result);
       if (result.success) {
         alert("Data berhasil diperbarui!");
       } else {
         alert("Gagal: " + result.error);
       }
     } catch (error) {
-      console.error(error);
       alert("Terjadi kesalahan saat mengirim data.");
     }
   };
@@ -297,7 +294,6 @@ const useRepPiutang = () => {
    * HANDLE CHANGE ETC
    */
 
-  console.log(isSelected);
   function handleChangeSelect(e: boolean, item: IPiutang) {
     if (e) {
       setIsSelected((prev) => [...(prev ?? []), item]);

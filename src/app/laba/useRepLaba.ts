@@ -95,7 +95,6 @@ const useRepLaba = () => {
       setIsSuccess(true, "Data berhasil diambil");
     } catch (error) {
       setIsErr(true, "Gagal mengambil data");
-      console.error("Error fetching data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +104,6 @@ const useRepLaba = () => {
    * FUNCTION ETC
    */
 
-  console.log(isFilter);
   const filteredData = React.useMemo(() => {
     // Filter berdasarkan rentang tanggal cusDate
     let filteredData = isData.filter((item) => {
@@ -149,10 +147,8 @@ const useRepLaba = () => {
     let percentageTotal = 0;
 
     filteredData.forEach((item) => {
-      console.log(item.buy);
       buyTotal += item.buy || 0;
       sellTotal += item.sell || 0;
-      profitTotal += item.profit || 0;
       percentageTotal = parseFloat(
         ((profitTotal / sellTotal) * 100).toFixed(2)
       );
@@ -165,8 +161,6 @@ const useRepLaba = () => {
       percentageTotal,
     };
   }, [isFilter, isData]);
-
-  console.log(sumData);
 
   /**
    * HANDLE CHANGE ETC

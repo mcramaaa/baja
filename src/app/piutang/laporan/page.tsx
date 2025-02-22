@@ -255,7 +255,6 @@ export default function Piutang() {
                         <div>
                           <Checkbox
                             onChange={(e) => {
-                              console.log(e.target.checked);
                               handleChangeSelect(e.target.checked, invoice);
                             }}
                           />
