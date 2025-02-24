@@ -14,7 +14,7 @@ interface IOptions {
   company: { label: string; value: string }[];
 }
 
-const useRepPiutang = () => {
+const useRepPiutang = (data: IPiutang[]) => {
   const { setIsLoading, setIsErr, setIsSuccess } = useLayout();
   const [isPiutang, setIsPiutang] = useState<IPiutang[]>();
   const [isSelected, setIsSelected] = useState<IPiutang[]>();
@@ -35,7 +35,7 @@ const useRepPiutang = () => {
   /**
    * API
    */
-  async function getPiutang() {
+  async function manageData(data: IPiutang[]) {
     setIsLoading(true, "Mengambil data");
     await fetch("/api/piutang")
       .then((res) => res.json())
@@ -61,7 +61,6 @@ const useRepPiutang = () => {
   const handleSubmitPay = async () => {
     // e.preventDefault();
 
-    console.log("first");
     // const payload = [
     //   {
     //     id: 3,
@@ -102,14 +101,12 @@ const useRepPiutang = () => {
       });
 
       const result = await response.json();
-      console.log(result);
       if (result.success) {
         alert("Data berhasil diperbarui!");
       } else {
         alert("Gagal: " + result.error);
       }
     } catch (error) {
-      console.error(error);
       alert("Terjadi kesalahan saat mengirim data.");
     }
   };
@@ -273,7 +270,7 @@ const useRepPiutang = () => {
 
     copyText += `_*List Piutang Jatuh Tempo ${converDateWIB(
       startDate
-    )} sd ${converDateWIB(endDate)}*_\n\n`;
+    )} s/d ${converDateWIB(endDate)}*_\n\n`;
 
     groupedInvoices.forEach((invoices, date) => {
       copyText += `Tgl ${converDateWIB(new Date(date))}\n`;
@@ -297,7 +294,6 @@ const useRepPiutang = () => {
    * HANDLE CHANGE ETC
    */
 
-  console.log(isSelected);
   function handleChangeSelect(e: boolean, item: IPiutang) {
     if (e) {
       setIsSelected((prev) => [...(prev ?? []), item]);
@@ -352,8 +348,8 @@ const useRepPiutang = () => {
   }
 
   useEffect(() => {
-    getPiutang();
-  }, []);
+    manageData(data);
+  }, [data]);
 
   useEffect(() => {
     groupedInvoices;

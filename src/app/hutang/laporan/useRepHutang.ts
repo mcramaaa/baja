@@ -171,7 +171,7 @@ const useRepHutang = () => {
 
     copyText += `_*List Hutang Jatuh Tempo ${converDateWIB(
       startDate
-    )} sd ${converDateWIB(endDate)}*_\n\n`;
+    )} s/d ${converDateWIB(endDate)}*_\n\n`;
 
     groupedInvoices.forEach((invoices, date) => {
       copyText += `Tgl ${converDateWIB(new Date(date))}\n`;
@@ -179,7 +179,9 @@ const useRepHutang = () => {
         const amount = invoice.status === "LUNAS" ? 0 : invoice.billRemaning;
         grandTotal += amount ? amount : 0;
         copyText += `Invoice : ${invoice.name}\n`;
-        copyText += `${convertToRupiah(amount)},-\n`;
+        copyText += `${convertToRupiah(amount)},-  ${
+          invoice.sub === "OA" ? `( ${invoice.sub} )` : ""
+        }\n`;
       });
       copyText += `\n`;
     });

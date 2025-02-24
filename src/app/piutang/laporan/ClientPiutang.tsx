@@ -10,31 +10,39 @@ import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
 import AntItemSelect from "@/components/dropdown/AntItemSelect";
 import RadioBtn from "@/components/button/RadioBtn";
 import DueDateBadge from "@/components/DueDateBadge";
-import useRepHutang from "./useRepHutang";
 import { IHutang } from "@/interface/IHutang";
+import useRepPiutang from "./useRepPiutang";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { MdLiveHelp } from "react-icons/md";
+import { Checkbox, Modal } from "antd";
+import { IPiutang } from "@/interface/IPiutang";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
-export default function Hutang() {
+export default function ClientPiutang({ data }: { data: IPiutang[] }) {
   const {
-    isHutang,
+    isPiutang,
     isSumData,
     isOptions,
     isFilter,
+    isSelected,
+    isModalSelect,
     groupedInvoices,
     setIsFilter,
+    setIsModalSelect,
+    handleCopyBill,
     handleCopy,
     handleDateRangeChange,
-  } = useRepHutang();
+    handleChangeSelect,
+    handleSubmitPay,
+  } = useRepPiutang(data);
 
   const chartData = {
-    labels: ["Hutang Terbayar", "Hutang Belum Terbayar"],
+    labels: ["Piutang Terbayar", "Piutang Belum Terbayar"],
     datasets: [
       {
         data: [isSumData?.GrandTotalPaid, isSumData?.GrandTotalRemaning],
@@ -55,10 +63,32 @@ export default function Hutang() {
     },
   ];
 
-  const now = new Date();
-
   return (
     <div className="">
+      <Modal
+        open={isModalSelect}
+        title="Piutang Terpilih"
+        className=""
+        onCancel={() => setIsModalSelect(false)}
+      >
+        <div className="flex max-h-[70vh] flex-col gap-5 overflow-y-scroll p-2">
+          {isSelected &&
+            isSelected.map((item, i) => (
+              <div
+                key={i}
+                className="drop-shadow-sm border w-full p-2 bg-white rounded-lg"
+              >
+                <div className="flex gap-3">
+                  <p className="font-bold">{item.inv}</p>
+                  <p>{converDateWIB(item.dueDate)}</p>
+                </div>
+                <p className="">{item.name}</p>
+                <p>{convertToRupiah(item.bill)}</p>
+                <p>{convertToRupiah(item.billRemaning)}</p>
+              </div>
+            ))}
+        </div>
+      </Modal>
       <div className="grid grid-cols-5 gap-5">
         <div className="flex bg-slate-50 p-4 text-sm rounded-lg gap-4 flex-col mb-6 h-fit">
           <h2 className="border-b-2 border-brand-core2 pb-2 text-center font-bold text-lg">
@@ -117,18 +147,33 @@ export default function Hutang() {
                     0
                   )}
                 </span>{" "}
-                dari <span className="font-bold">{isHutang?.length}</span> data
-                Hutang
+                dari <span className="font-bold">{isPiutang?.length}</span> data
+                Piutang
               </p>
               <p>
-                Total Hutang : {convertToRupiah(isSumData?.GrandTotalBill)},-
+                Total Piutang : {convertToRupiah(isSumData?.GrandTotalBill)},-
               </p>
             </div>
+            {isSelected && (
+              <button onClick={() => setIsModalSelect(true)}>
+                <p>{isSelected?.length} Dipilih</p>
+              </button>
+            )}
             <div className="flex gap-5">
-              {/* <button onClick={handleCopy} className="flex items-center gap-2">
+              {/* <SelectModalPiutang /> */}
+              {/* <button
+                onClick={handleSubmitPay}
+                className="flex items-center gap-2"
+              >
+                <span>Bayar</span>
+              </button> */}
+              <button
+                onClick={handleCopyBill}
+                className="flex items-center gap-2"
+              >
                 <FaRegCopy />
                 <span>Copy Tagihan</span>
-              </button> */}
+              </button>
               <button onClick={handleCopy} className="flex items-center gap-2">
                 <FaRegCopy />
                 <span>Copy Laporan</span>
@@ -138,7 +183,7 @@ export default function Hutang() {
 
           <div className="grid gap-2 text-center bg-slate-800 rounded-lg text-white grid-cols-6 p-2 text-sm font-bold">
             <p className="col-span-2 ">No PO</p>
-            <p className="">Tgl PO</p>
+            <p className="">Tgl Inv</p>
             <p className="">Tagihan</p>
             <p className="">Pembayaran</p>
             <p className="">Sisa Tagihan</p>
@@ -147,9 +192,9 @@ export default function Hutang() {
             {Array.from(groupedInvoices.entries()).map(
               ([date, invoices], i) => (
                 <div key={date} className={`${i !== 0 && "mt-5"}`}>
-                  <div className="font-bold text-sm flex justify-between items-center gap-5 border-b">
-                    <div className="flex gap-5">
-                      <p>
+                  <div className="text-sm flex items-center justify-between gap-5 border-b">
+                    <div className="flex items-center gap-5">
+                      <p className="font-bold">
                         Tgl{" "}
                         {isFilter?.sortBy === "dueDate"
                           ? converDateWIB(date)
@@ -206,65 +251,92 @@ export default function Hutang() {
                     {(invoices as IHutang[]).map((invoice, index) => (
                       <div
                         key={index}
-                        className="bg-white drop-shadow p-3 rounded-lg text-slate-900"
+                        className="bg-white flex items-center gap-3 drop-shadow p-3 rounded-lg text-slate-900"
                       >
-                        <p className=" pb-1 text-xs">
-                          <span className="font-bold text-sm">
-                            {invoice.name}{" "}
-                          </span>
-                          <span
-                            className={`${
-                              invoice.inv === "Tagihan Belum Diterima"
-                                ? "text-red-700"
-                                : ""
-                            }`}
-                          >
-                            {`(${invoice.inv})`}
-                          </span>
-                        </p>
-                        <div className="grid grid-cols-6 justify-center text-center gap-2">
-                          <p className="col-span-2 text-start ">
-                            {invoice.po}
-                            {invoice.sub &&
-                              invoice.sub !== "." &&
-                              `-${invoice.sub}`}
-                          </p>
-                          <p className="">
-                            {converDateWIB(invoice.poDate)}{" "}
-                            <span className="font-bold">
-                              {+(invoice.rangeDay ?? 0) === 0
-                                ? "(CASH)"
-                                : `(${invoice.rangeDay} Hari)`}
-                            </span>
-                          </p>
-                          <p className="">{convertToRupiah(invoice.bill)}</p>
-                          <p className="">
-                            {invoice.payment === 0
-                              ? "Rp 0"
-                              : convertToRupiah(invoice.payment)}
-                          </p>
-                          <div className="flex items-center gap-2 justify-between text-center">
-                            <div className="w-full">
-                              <p className="">
-                                {invoice.status === "LUNAS"
-                                  ? "Rp. 0,-"
-                                  : `${convertToRupiah(
-                                      invoice.billRemaning
-                                    )},-`}
-                              </p>
+                        <div>
+                          <Checkbox
+                            onChange={(e) => {
+                              handleChangeSelect(e.target.checked, invoice);
+                            }}
+                          />
+                          {invoice.id}
+                        </div>
+                        <div className="w-full">
+                          <p className="font-bold pb-1">{invoice.name}</p>
+                          <div className="grid grid-cols-6 justify-center text-center gap-2">
+                            <p className="col-span-2 text-start ">
+                              {invoice.po}
+                              {invoice.sub && `-${invoice.sub}`}
+                            </p>
+                            <p className="">
+                              {converDateWIB(invoice.invDate)}{" "}
+                              <span className="font-bold">
+                                {+(invoice.rangeDay ?? 0) === 0
+                                  ? "(CASH)"
+                                  : `(${invoice.rangeDay} Hari)`}
+                              </span>
+                            </p>
+                            <p className="">{convertToRupiah(invoice.bill)}</p>
+                            <p className="">
+                              {invoice.payment === 0
+                                ? "Rp 0"
+                                : convertToRupiah(invoice.payment)}
+                            </p>
+                            <div className="flex items-center gap-2 justify-between text-center">
+                              <div className="w-full">
+                                <p className="">
+                                  {invoice.status === "LUNAS"
+                                    ? "Rp. 0"
+                                    : `${convertToRupiah(
+                                        invoice.billRemaning
+                                      )}`}
+                                </p>
+                              </div>
+                              <BsPatchCheckFill
+                                className={`${
+                                  invoice.status === "LUNAS"
+                                    ? "text-green-600"
+                                    : "text-slate-400"
+                                } text-lg`}
+                              />
                             </div>
-                            <BsPatchCheckFill
-                              className={`${
-                                invoice.status === "LUNAS"
-                                  ? "text-green-600"
-                                  : "text-slate-400"
-                              } text-lg`}
-                            />
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
+                  {/* <div className="grid text-center bg-white grid-cols-6 gap-2 pt-3">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <p className="">
+                      {convertToRupiah(
+                        invoices.reduce(
+                          (total: number, inv: IHutang) =>
+                            total + (inv.bill ?? 0),
+                          0
+                        )
+                      )}
+                    </p>
+                    <p className="">
+                      {convertToRupiah(
+                        invoices.reduce(
+                          (total: number, inv: IHutang) =>
+                            total + (inv.payment ?? 0),
+                          0
+                        )
+                      )}
+                    </p>
+                    <p className="">
+                      {convertToRupiah(
+                        invoices.reduce(
+                          (total: number, inv: IHutang) =>
+                            total + (inv.billRemaning ?? 0),
+                          0
+                        )
+                      )}
+                    </p>
+                  </div> */}
                 </div>
               )
             )}
@@ -276,15 +348,15 @@ export default function Hutang() {
             <Doughnut data={chartData} />
           </div>
           <div className="grid grid-cols-2 gap-2 ">
-            <p className="font-bold">Grand Total Hutang</p>
+            <p className="font-bold">Grand Total Piutang</p>
             <p className="text-end">
               {convertToRupiah(isSumData?.GrandTotalBill)},-
             </p>
-            <p className="font-bold">Hutang Terbayar</p>
+            <p className="font-bold">Piutang Terbayar</p>
             <p className="text-end">
               {convertToRupiah(isSumData?.GrandTotalPaid)},-
             </p>
-            <p className="font-bold">Hutang Belum Terbayar</p>
+            <p className="font-bold">Piutang Belum Terbayar</p>
             <p className="text-end">
               {convertToRupiah(isSumData?.GrandTotalRemaning)},-
             </p>
