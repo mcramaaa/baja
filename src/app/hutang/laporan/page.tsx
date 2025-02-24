@@ -225,7 +225,9 @@ export default function Hutang() {
                         <div className="grid grid-cols-6 justify-center text-center gap-2">
                           <p className="col-span-2 text-start ">
                             {invoice.po}
-                            {invoice.sub && `-${invoice.sub}`}
+                            {invoice.sub &&
+                              invoice.sub !== "." &&
+                              `-${invoice.sub}`}
                           </p>
                           <p className="">
                             {converDateWIB(invoice.poDate)}{" "}

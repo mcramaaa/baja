@@ -1,16 +1,15 @@
-import { getPiutang } from "@/lib/getPiutang";
+import ClientPiutang from "./ClientPiutang";
 
-export default async function PiutangPage({ searchParams }: any) {
-  console.log(searchParams);
-
-  const res = await getPiutang();
-
-  console.log(searchParams);
+export default async function PiutangPage() {
+  let resData = [];
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/piutang`);
+    resData = await res.json();
+  } catch (error) {}
 
   return (
     <div>
-      {/* <ClientPiutang piutangData={piutangData} /> */}
-      tes
+      <ClientPiutang data={resData} />
     </div>
   );
 }

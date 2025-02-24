@@ -14,7 +14,7 @@ interface IOptions {
   company: { label: string; value: string }[];
 }
 
-const useRepPiutang = () => {
+const useRepPiutang = (data: IPiutang[]) => {
   const { setIsLoading, setIsErr, setIsSuccess } = useLayout();
   const [isPiutang, setIsPiutang] = useState<IPiutang[]>();
   const [isSelected, setIsSelected] = useState<IPiutang[]>();
@@ -35,7 +35,7 @@ const useRepPiutang = () => {
   /**
    * API
    */
-  async function getPiutang() {
+  async function manageData(data: IPiutang[]) {
     setIsLoading(true, "Mengambil data");
     await fetch("/api/piutang")
       .then((res) => res.json())
@@ -49,11 +49,11 @@ const useRepPiutang = () => {
           ).values()
         );
 
-        // setIsPiutang(data);
-        // setIsOptions((prev) => ({
-        //   ...prev,
-        //   company: uniqueCustomers as { label: string; value: string }[],
-        // }));
+        setIsPiutang(data);
+        setIsOptions((prev) => ({
+          ...prev,
+          company: uniqueCustomers as { label: string; value: string }[],
+        }));
         setIsLoading(false);
       });
   }
@@ -270,7 +270,7 @@ const useRepPiutang = () => {
 
     copyText += `_*List Piutang Jatuh Tempo ${converDateWIB(
       startDate
-    )} sd ${converDateWIB(endDate)}*_\n\n`;
+    )} s/d ${converDateWIB(endDate)}*_\n\n`;
 
     groupedInvoices.forEach((invoices, date) => {
       copyText += `Tgl ${converDateWIB(new Date(date))}\n`;
@@ -348,8 +348,8 @@ const useRepPiutang = () => {
   }
 
   useEffect(() => {
-    getPiutang();
-  }, []);
+    manageData(data);
+  }, [data]);
 
   useEffect(() => {
     groupedInvoices;

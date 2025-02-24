@@ -19,10 +19,11 @@ import {
 } from "@/components/ui/popover";
 import { MdLiveHelp } from "react-icons/md";
 import { Checkbox, Modal } from "antd";
+import { IPiutang } from "@/interface/IPiutang";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
-export default function Piutang() {
+export default function ClientPiutang({ data }: { data: IPiutang[] }) {
   const {
     isPiutang,
     isSumData,
@@ -38,7 +39,7 @@ export default function Piutang() {
     handleDateRangeChange,
     handleChangeSelect,
     handleSubmitPay,
-  } = useRepPiutang();
+  } = useRepPiutang(data);
 
   const chartData = {
     labels: ["Piutang Terbayar", "Piutang Belum Terbayar"],
