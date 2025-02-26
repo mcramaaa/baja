@@ -18,6 +18,7 @@ export default function page() {
     setIsFilter,
     handleDateRangeChange,
   } = useRepLaba();
+  console.log(sumData);
   const chartData = {
     labels: ["Total Beli", "Total Jual", "Profit"],
     datasets: [

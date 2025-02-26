@@ -50,6 +50,7 @@ const useRepLaba = () => {
         }
       });
 
+      console.log(piutangRes);
       // Gabungkan data piutang berdasarkan `po`
       piutangRes.forEach((piutang: IPiutang) => {
         if (piutang.po && piutang.totBill) {
@@ -90,6 +91,7 @@ const useRepLaba = () => {
 
       // Konversi Map ke Array
       const mergedData = Array.from(combinedMap.values());
+      console.log(mergedData);
 
       setIsData(mergedData);
       setIsSuccess(true, "Data berhasil diambil");
@@ -145,10 +147,12 @@ const useRepLaba = () => {
     let sellTotal = 0;
     let profitTotal = 0;
     let percentageTotal = 0;
+    console.log(filteredData);
 
     filteredData.forEach((item) => {
       buyTotal += item.buy || 0;
       sellTotal += item.sell || 0;
+      profitTotal += item.profit || 0;
       percentageTotal = parseFloat(
         ((profitTotal / sellTotal) * 100).toFixed(2)
       );
