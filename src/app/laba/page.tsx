@@ -17,6 +17,7 @@ export default function page() {
     filteredData,
     setIsFilter,
     handleDateRangeChange,
+    exportToExcel,
   } = useRepLaba();
   console.log(sumData);
   const chartData = {
@@ -99,12 +100,12 @@ export default function page() {
             )} */}
             <div className="flex gap-5">
               {/* <SelectModalPiutang /> */}
-              {/* <button
-                onClick={handleSubmitPay}
+              <button
+                onClick={() => exportToExcel(filteredData)}
                 className="flex items-center gap-2"
               >
                 <span>Bayar</span>
-              </button> */}
+              </button>
               {/* <button
                 onClick={handleCopyBill}
                 className="flex items-center gap-2"

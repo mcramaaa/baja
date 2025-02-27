@@ -3,6 +3,9 @@ import { IHutang } from "@/interface/IHutang";
 import { IDataLaba } from "@/interface/ILaba";
 import { IPiutang } from "@/interface/IPiutang";
 import React, { useEffect, useState } from "react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { converDateWIB } from "@/helper/convert";
 
 interface IFilter {
   startDate?: Date;
@@ -106,6 +109,7 @@ const useRepLaba = () => {
    * FUNCTION ETC
    */
 
+  // Filter data
   const filteredData = React.useMemo(() => {
     // Filter berdasarkan rentang tanggal cusDate
     let filteredData = isData.filter((item) => {
@@ -141,6 +145,9 @@ const useRepLaba = () => {
     return filteredData;
   }, [isFilter, isData]);
 
+  console.log(filteredData);
+
+  // SUM DATA
   const sumData = React.useMemo(() => {
     // Hitung total buy, sell, profit, dan percentage
     let buyTotal = 0;
@@ -165,6 +172,92 @@ const useRepLaba = () => {
       percentageTotal,
     };
   }, [isFilter, isData]);
+
+  // Export To Excel
+  const exportToExcel = (data: IDataLaba[]) => {
+    // Hitung total buy, sell, dan profit
+    // const totalBuy = data.reduce((sum, item) => sum + (item.buy || 0), 0);
+    // const totalSell = data.reduce((sum, item) => sum + (item.sell || 0), 0);
+    // const totalProfit = data.reduce((sum, item) => sum + (item.profit || 0), 0);
+
+    // Konversi data menjadi array untuk ditampilkan di Excel
+    // const formattedData = data.map((item) => ({
+    //   PO: item.po,
+    //   "Supplier Date": item.supDate
+    //     ? new Date(item.supDate).toLocaleDateString()
+    //     : "",
+    //   "Supplier Name": item.supName,
+    //   Buy: item.buy,
+    //   "Customer Date": item.cusDate
+    //     ? new Date(item.cusDate).toLocaleDateString()
+    //     : "",
+    //   "Customer Name": item.cusName,
+    //   Sell: item.sell,
+    //   Profit: item.profit,
+    //   Percentage: item.percentage + "%",
+    // }));
+
+    const formattedData = data.map((item) => [
+      item.po,
+      item.supDate ? new Date(item.supDate).toLocaleDateString() : "",
+      item.supName,
+      item.buy,
+      item.cusDate ? new Date(item.cusDate).toLocaleDateString() : "",
+      item.cusName,
+      item.sell,
+      item.profit,
+      `${item.percentage}%`,
+    ]);
+
+    // Tentukan indeks baris terakhir (mulai dari 2 karena Excel pakai 1-based index)
+    const lastRow = formattedData.length + 1; // Tambah 1 untuk header
+
+    // Tambahkan baris total menggunakan rumus SUM
+    formattedData.push([
+      "TOTAL",
+      "",
+      "",
+      { f: `SUM(D2:D${lastRow})` } as any,
+      "",
+      "",
+      { f: `SUM(G2:G${lastRow})` },
+      { f: `SUM(H2:H${lastRow})` },
+      { f: `(SUM(H2:H${lastRow})/SUM(G2:G${lastRow}))*100%` },
+    ]);
+
+    // Buat header tabel
+    const headers = [
+      "PO",
+      "Supplier Date",
+      "Supplier Name",
+      "Buy",
+      "Customer Date",
+      "Customer Name",
+      "Sell",
+      "Profit",
+      "Percentage",
+    ];
+
+    // Buat worksheet
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...formattedData]);
+
+    // Buat workbook dan tambahkan worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+    // Simpan file Excel
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const dataBlob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+    });
+
+    saveAs(
+      dataBlob,
+      `EXPORT LABA ${
+        isFilter?.startDate && converDateWIB(isFilter?.startDate)
+      } ${isFilter?.endDate && `sd ${converDateWIB(isFilter?.endDate)}`}.xlsx`
+    );
+  };
 
   /**
    * HANDLE CHANGE ETC
@@ -193,6 +286,7 @@ const useRepLaba = () => {
     sumData,
     setIsFilter,
     handleDateRangeChange,
+    exportToExcel,
   };
 };
 
