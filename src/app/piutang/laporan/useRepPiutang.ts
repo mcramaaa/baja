@@ -275,7 +275,10 @@ const useRepPiutang = (data: IPiutang[]) => {
         const amount = invoice.status === "LUNAS" ? 0 : invoice.billRemaning;
         grandTotal += amount ? amount : 0;
         copyText += `Invoice : ${invoice.name}\n`;
-        copyText += `${convertToRupiah(amount)},-\n`;
+        copyText +=
+          invoice.billRemaning !== invoice.bill && invoice.billRemaning !== 0
+            ? `*(Kurang Bayar)* ${convertToRupiah(amount)},-\n`
+            : `${convertToRupiah(amount)},-\n`;
       });
       copyText += `\n`;
     });
