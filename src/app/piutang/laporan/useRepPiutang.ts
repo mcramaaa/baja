@@ -14,7 +14,7 @@ interface IOptions {
   company: { label: string; value: string }[];
 }
 
-const useRepPiutang = (data: IPiutang[]) => {
+const useRepPiutang = () => {
   const { setIsLoading, setIsErr, setIsSuccess } = useLayout();
   const [isPiutang, setIsPiutang] = useState<IPiutang[]>();
   const [isSelected, setIsSelected] = useState<IPiutang[]>();
@@ -35,25 +35,50 @@ const useRepPiutang = (data: IPiutang[]) => {
   /**
    * API
    */
-  async function manageData(data: IPiutang[]) {
-    const uniqueCustomers = Array.from(
-      new Map(
-        data
-          .filter((item) => item.name)
-          .map((item) => [
-            item.name as string,
-            { label: item.name as string, value: item.name as string },
-          ])
-      ).values()
-    );
 
-    setIsPiutang(data);
-    setIsOptions((prev) => ({
-      ...prev,
-      company: uniqueCustomers as { label: string; value: string }[],
-    }));
-    setIsLoading(false);
+  async function getPiutang() {
+    setIsLoading(true, "Mengambil data");
+    await fetch("/api/piutang")
+      .then((res) => res.json())
+      .then((data) => {
+        const uniqueCustomers = Array.from(
+          new Map(
+            data.map((item: { name: string }) => [
+              item.name,
+              { label: item.name, value: item.name },
+            ])
+          ).values()
+        );
+
+        setIsPiutang(data);
+        setIsOptions((prev) => ({
+          ...prev,
+          company: uniqueCustomers as { label: string; value: string }[],
+        }));
+        setIsLoading(false);
+      });
   }
+
+  // async function manageData(data: IPiutang[]) {
+  //   setIsLoading(true, "Mengambil data");
+  //   const uniqueCustomers = Array.from(
+  //     new Map(
+  //       data
+  //         .filter((item) => item.name)
+  //         .map((item) => [
+  //           item.name as string,
+  //           { label: item.name as string, value: item.name as string },
+  //         ])
+  //     ).values()
+  //   );
+
+  //   setIsPiutang(data);
+  //   setIsOptions((prev) => ({
+  //     ...prev,
+  //     company: uniqueCustomers as { label: string; value: string }[],
+  //   }));
+  //   setIsLoading(false);
+  // }
 
   const handleSubmitPay = async () => {
     // e.preventDefault();
@@ -349,8 +374,8 @@ const useRepPiutang = (data: IPiutang[]) => {
 
   useEffect(() => {
     setIsLoading(true, "Mengambil data");
-    manageData(data);
-  }, [data]);
+    getPiutang();
+  }, []);
 
   useEffect(() => {
     groupedInvoices;

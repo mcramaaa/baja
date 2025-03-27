@@ -23,7 +23,7 @@ import { IPiutang } from "@/interface/IPiutang";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
-export default function ClientPiutang({ data }: { data: IPiutang[] }) {
+export default function ClientPiutang() {
   const {
     isPiutang,
     isSumData,
@@ -39,7 +39,7 @@ export default function ClientPiutang({ data }: { data: IPiutang[] }) {
     handleDateRangeChange,
     handleChangeSelect,
     handleSubmitPay,
-  } = useRepPiutang(data);
+  } = useRepPiutang();
 
   const chartData = {
     labels: ["Piutang Terbayar", "Piutang Belum Terbayar"],
