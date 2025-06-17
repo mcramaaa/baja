@@ -53,6 +53,7 @@ const useRepPiutang = () => {
         setIsPiutang(data);
         setIsOptions((prev) => ({
           ...prev,
+
           company: uniqueCustomers as { label: string; value: string }[],
         }));
         setIsLoading(false);
@@ -380,6 +381,8 @@ const useRepPiutang = () => {
   useEffect(() => {
     groupedInvoices;
   }, [isFilter]);
+
+  console.log(groupedInvoices);
 
   return {
     isPiutang,

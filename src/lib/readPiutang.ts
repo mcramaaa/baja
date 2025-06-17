@@ -40,6 +40,7 @@ async function readPiutang() {
         invDate: convertCustomDate(data[12]),
         rangeDay: +data[13],
         dueDate: convertCustomDate(data[14]),
+        fk: data[15],
         overDue: data[19],
         bill: convertToNumber(data[22]),
         totBill: convertToNumber(data[23]),

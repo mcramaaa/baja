@@ -21,8 +21,12 @@ export default function Navbar() {
     if (path === ROUTER.HUTANG.LAPORAN) {
       return "Laporan Hutang";
     }
+
     if (path === ROUTER.LABA) {
       return "Laporan Laba";
+    }
+    if (path === ROUTER.KONVERSI) {
+      return "Laporan Hutang";
     }
   };
 

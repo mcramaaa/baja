@@ -11,6 +11,7 @@ export interface IPiutang {
   invDate?: string;
   rangeDay?: string;
   dueDate?: string;
+  fk?: string;
   overDue?: string;
   bill?: number;
   totBill?: number;

@@ -262,7 +262,11 @@ export default function ClientPiutang() {
                           {invoice.id}
                         </div>
                         <div className="w-full">
-                          <p className="font-bold pb-1">{invoice.name}</p>
+                          <p className="font-bold pb-1">
+                            {invoice.name}
+                            {" => "}
+                            <span className="font-normal ">{invoice.fk}</span>
+                          </p>
                           <div className="grid grid-cols-6 justify-center text-center gap-2">
                             <p className="col-span-2 text-start ">
                               {invoice.po}
