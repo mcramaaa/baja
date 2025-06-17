@@ -6,4 +6,5 @@ export const ROUTER = {
     LAPORAN: "/hutang/laporan",
   },
   LABA: "/laba",
+  KONVERSI: "/konversi",
 };

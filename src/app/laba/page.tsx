@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import useRepLaba from "./useRepLaba";
 import { converDateWIB, convertToRupiah } from "@/helper/convert";
 import { Doughnut } from "react-chartjs-2";
@@ -17,7 +17,9 @@ export default function page() {
     filteredData,
     setIsFilter,
     handleDateRangeChange,
+    exportToExcel,
   } = useRepLaba();
+  console.log(sumData);
   const chartData = {
     labels: ["Total Beli", "Total Jual", "Profit"],
     datasets: [
@@ -98,12 +100,12 @@ export default function page() {
             )} */}
             <div className="flex gap-5">
               {/* <SelectModalPiutang /> */}
-              {/* <button
-                onClick={handleSubmitPay}
+              <button
+                onClick={() => exportToExcel(filteredData)}
                 className="flex items-center gap-2"
               >
                 <span>Bayar</span>
-              </button> */}
+              </button>
               {/* <button
                 onClick={handleCopyBill}
                 className="flex items-center gap-2"

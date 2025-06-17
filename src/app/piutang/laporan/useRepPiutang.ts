@@ -35,6 +35,7 @@ const useRepPiutang = () => {
   /**
    * API
    */
+
   async function getPiutang() {
     setIsLoading(true, "Mengambil data");
     await fetch("/api/piutang")
@@ -52,11 +53,33 @@ const useRepPiutang = () => {
         setIsPiutang(data);
         setIsOptions((prev) => ({
           ...prev,
+
           company: uniqueCustomers as { label: string; value: string }[],
         }));
         setIsLoading(false);
       });
   }
+
+  // async function manageData(data: IPiutang[]) {
+  //   setIsLoading(true, "Mengambil data");
+  //   const uniqueCustomers = Array.from(
+  //     new Map(
+  //       data
+  //         .filter((item) => item.name)
+  //         .map((item) => [
+  //           item.name as string,
+  //           { label: item.name as string, value: item.name as string },
+  //         ])
+  //     ).values()
+  //   );
+
+  //   setIsPiutang(data);
+  //   setIsOptions((prev) => ({
+  //     ...prev,
+  //     company: uniqueCustomers as { label: string; value: string }[],
+  //   }));
+  //   setIsLoading(false);
+  // }
 
   const handleSubmitPay = async () => {
     // e.preventDefault();
@@ -270,7 +293,7 @@ const useRepPiutang = () => {
 
     copyText += `_*List Piutang Jatuh Tempo ${converDateWIB(
       startDate
-    )} sd ${converDateWIB(endDate)}*_\n\n`;
+    )} s/d ${converDateWIB(endDate)}*_\n\n`;
 
     groupedInvoices.forEach((invoices, date) => {
       copyText += `Tgl ${converDateWIB(new Date(date))}\n`;
@@ -278,7 +301,10 @@ const useRepPiutang = () => {
         const amount = invoice.status === "LUNAS" ? 0 : invoice.billRemaning;
         grandTotal += amount ? amount : 0;
         copyText += `Invoice : ${invoice.name}\n`;
-        copyText += `${convertToRupiah(amount)},-\n`;
+        copyText +=
+          invoice.billRemaning !== invoice.bill && invoice.billRemaning !== 0
+            ? `*(Kurang Bayar)* ${convertToRupiah(amount)},-\n`
+            : `${convertToRupiah(amount)},-\n`;
       });
       copyText += `\n`;
     });
@@ -348,12 +374,15 @@ const useRepPiutang = () => {
   }
 
   useEffect(() => {
+    setIsLoading(true, "Mengambil data");
     getPiutang();
   }, []);
 
   useEffect(() => {
     groupedInvoices;
   }, [isFilter]);
+
+  console.log(groupedInvoices);
 
   return {
     isPiutang,
